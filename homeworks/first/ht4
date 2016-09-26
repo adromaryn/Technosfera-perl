@@ -1,0 +1,4 @@
+#perl -d ht3.pl < output1
+#and after that: 'source ht4'
+a 8 print "Array length: ".@arr." \n";
+c
