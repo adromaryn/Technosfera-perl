@@ -29,7 +29,43 @@ sub tokenize {
 	chomp(my $expr = shift);
 	my @res;
 
-	# ...
+	my $flag = 0;
+	my $i = 0;
+	while ($expr) {
+		if (!$flag) {
+			if (substr($expr, 0, 1) =~ /^\+|-$/ ) {
+				push @res, "U".substr($expr, 0, 1);
+				$flag = 2;
+			} elsif (substr($expr, 0, 1) =~ /^\d$/) {
+				$flag = 1;
+				push @res, substr($expr, 0, 1);
+			} else {
+				die "Invalid char, +/- or digit should be, position: ".$i;
+			}
+		} elsif ($flag == 1) {
+			if (substr($expr, 0, 1) =~ /^\+|-|\*|\/$/ ) {
+				push @res, substr($expr, 0, 1);
+				$flag = 0;
+			} elsif (substr($expr, 0, 1) =~ /^\d$/) {
+				@res[$#res] = @res[$#res].substr($expr, 0, 1);
+			} else {
+				die "Invalid char, +/-/*// or digit should be, position: ".$i;
+			}
+		} else {
+			if (substr($expr, 0, 1) =~ /^\d$/) {
+				$flag = 1;
+				push @res, substr($expr, 0, 1);
+			} else {
+				die "Invalid char, digit should be, position: ".$i;
+			}
+		}
+		$expr = substr $expr, 1, (length($expr) - 1);
+		$i++;
+	}
+
+	if ($flag != 1) {
+		die "Last char should be digit";
+	}
 
 	return \@res;
 }
