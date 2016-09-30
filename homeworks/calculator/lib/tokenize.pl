@@ -29,42 +29,63 @@ sub tokenize {
 	chomp(my $expr = shift);
 	my @res;
 
-	my $flag = 0;
-	my $i = 0;
-	while ($expr) {
-		if (!$flag) {
-			if (substr($expr, 0, 1) =~ /^\+|-$/ ) {
-				push @res, "U".substr($expr, 0, 1);
-				$flag = 2;
-			} elsif (substr($expr, 0, 1) =~ /^\d$/) {
-				$flag = 1;
-				push @res, substr($expr, 0, 1);
-			} else {
-				die "Invalid char, +/- or digit should be, position: ".$i;
+	my @chunks = split m{([-+*/^()])}, $expr;
+  #print print join(",", @chunks)."\n";
+
+	for my $c (@chunks) {
+		next if $c =~ /^\s*$/;
+    $c=~s/\s//g;;
+		given ($c) {
+			when (/^\s*$/) {}
+			when (/^\d*\.?\d*['e','E']?\d*$/) {
+				if (@res && $res[$#res] =~ /^\d*\.?\d*['e','E'][-\+]$/ && $c =~ /^\d+$/) {
+					$res[$#res] = $res[$#res].$c;
+				} elsif (@res && $res[$#res] eq ')') {
+					die "Bad: '$_'";
+				} else {
+					push @res, $c;
+				}
 			}
-		} elsif ($flag == 1) {
-			if (substr($expr, 0, 1) =~ /^\+|-|\*|\/$/ ) {
-				push @res, substr($expr, 0, 1);
-				$flag = 0;
-			} elsif (substr($expr, 0, 1) =~ /^\d$/) {
-				@res[$#res] = @res[$#res].substr($expr, 0, 1);
-			} else {
-				die "Invalid char, +/-/*// or digit should be, position: ".$i;
+			when ([ '+','-' ]){
+				if (@res == 0 || $res[$#res] =~ /^(U?[-\+]|[\*\^\/\(])$/) {
+					push @res, "U".$c;
+				} elsif (substr($res[$#res], -1) =~ /^[eE]$/) {
+					$res[$#res] = $res[$#res].$c;
+				} elsif ($res[$#res] =~ /\d/ || $res[$#res] eq ')') {
+					push @res, $c;
+				} else {
+					die "Bad: '$_'";
+				}
 			}
-		} else {
-			if (substr($expr, 0, 1) =~ /^\d$/) {
-				$flag = 1;
-				push @res, substr($expr, 0, 1);
-			} else {
-				die "Invalid char, digit should be, position: ".$i;
+			when (["*","/","^"]) {
+				if (@res && ($res[$#res] =~ /\d/ || $res[$#res] eq ')') ) {
+					push @res, $c;
+				} else {
+					die "Bad: '$_'";
+				}
+			}
+			when (["("]) {
+				if (@res && $res[$#res] =~ /\d/ ) {
+					die "Bad: '$_'";
+				} else {
+					push @res, $c;
+				}
+			}
+			when ([")"]) {
+				if (!@res || $res[$#res] =~ /^U?[-\+\*\/\^]$/ ) {
+					die "Bad: '$_'";
+				} else {
+					push @res, $c;
+				}
+			}
+			default {
+				die "Bad: '$_'";
 			}
 		}
-		$expr = substr $expr, 1, (length($expr) - 1);
-		$i++;
 	}
 
-	if ($flag != 1) {
-		die "Last char should be digit";
+	if ($res[$#res] !~ /\d|\)/) {
+		die "Bad: tokenize failed, last chunk not number or )";
 	}
 
 	return \@res;

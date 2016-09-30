@@ -26,7 +26,53 @@ sub rpn {
 	my $source = tokenize($expr);
 	my @rpn;
 
-	# ...
+  my @ops;
+	for my $s (@$source) {
+		given ($s) {
+			when (/\d/) {
+				push @rpn, (0+$s)."";
+			}
+			when ('(') {
+				push @ops, '(';
+			}
+			when (')') {
+				my %index;
+				@index{@ops} = (0..$#ops);
+				if (exists $index{'('}) {
+					my $index = $index{'('};
+					push @rpn, reverse @ops[($index+1)..$#ops];
+					@ops = @ops[0..($index-1)];
+				} else {
+					die "Bad: '$_'";
+				}
+			}
+			when (['U+','U-']) {
+				push @ops, $s;
+			}
+			when ('^') {
+				#while(@ops && $ops[$#ops] =~ /^U[-\+]$/) {
+				#	push @rpn, $ops[$#ops];
+				#	@ops = @ops[0..$#ops-1];
+				#}
+        push @ops, $s;
+			}
+			when (['*', '/']) {
+				while(@ops && $ops[$#ops] =~ /^(U[-\+])|([\^\*\/])$/) {
+					push @rpn, $ops[$#ops];
+					@ops = @ops[0..$#ops-1];
+				}
+        push @ops, $s;
+			}
+			when (['+', '-']) {
+				while(@ops && $ops[$#ops] =~ /^U?[-\^\*\/\+]$/) {
+					push @rpn, $ops[$#ops];
+					@ops = @ops[0..$#ops-1];
+				}
+        push @ops, $s;
+			}
+		}
+	}
+	push @rpn, reverse @ops;
 
 	return \@rpn;
 }

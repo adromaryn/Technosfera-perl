@@ -20,9 +20,45 @@ no warnings 'experimental';
 sub evaluate {
 	my $rpn = shift;
 
-	# ...
+  my @stack;
+	for my $r (@$rpn) {
+		given ($r) {
+			when (/\d/) {
+				push @stack, (0+$r);
+			}
+			when ('U-') {
+				$stack[$#stack] *= -1;
+			}
+			when ('U+') {}
+			when ('^') {
+        my $pow = $stack[$#stack-1] ** $stack[$#stack];
+				@stack = @stack[0..$#stack-2];
+				push @stack, $pow;
+			}
+			when ('*') {
+        my $mul = $stack[$#stack-1] * $stack[$#stack];
+				@stack = @stack[0..$#stack-2];
+				push @stack, $mul;
+			}
+			when ('/') {
+        my $div = $stack[$#stack-1] / $stack[$#stack];
+				@stack = @stack[0..$#stack-2];
+				push @stack, $div;
+			}
+			when ('+') {
+        my $sum = $stack[$#stack-1] + $stack[$#stack];
+				@stack = @stack[0..$#stack-2];
+				push @stack, $sum;
+			}
+			when ('-') {
+        my $dif = $stack[$#stack-1] - $stack[$#stack];
+				@stack = @stack[0..$#stack-2];
+				push @stack, $dif;
+			}
+		}
+	}
 
-	return 0;
+	return $stack[$#stack];
 }
 
 1;
