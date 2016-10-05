@@ -24,6 +24,8 @@ sub checkRing($$$) {
   } elsif (-l $link) {
 		checkRing($root, $link, $entry);
 		checkOutside($root, $link, $entry);
+	} elsif (-d $link) {
+		check($root, $link);
 	}
 }
 
@@ -42,19 +44,18 @@ sub checkOutside($$$) {
 	}
 }
 
-sub check($$$);
+sub check($$);
 
-sub check($$$) {
+sub check($$) {
   my $parent = shift;
   my $dirname = shift;
-  my $ignore_sym = shift;
   opendir(my $dir, $dirname);
   while (my $file = readdir($dir)) {
     if (-l $dirname . '/' . $file) {
       checkRing($parent, ($dirname . '/' . $file), ($dirname . '/' . $file));
       checkOutside($parent, $dirname . '/' . $file, $dirname . '/' . $file);
     } elsif (-d $dirname . '/' . $file && $file ne "." && $file ne "..") {
-      check($parent, $dirname . '/' . $file, $ignore_sym);
+      check($parent, $dirname . '/' . $file);
     }
   }
   closedir $dir;
@@ -62,4 +63,4 @@ sub check($$$) {
 
 my $dirname = File::Spec->rel2abs($ARGV[-1]);
 print $dirname."\n";
-check($dirname, $dirname, "");
+check($dirname, $dirname);
