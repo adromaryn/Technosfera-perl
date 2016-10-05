@@ -50,10 +50,6 @@ sub rpn {
 				push @ops, $s;
 			}
 			when ('^') {
-				#while(@ops && $ops[$#ops] =~ /^U[-\+]$/) {
-				#	push @rpn, $ops[$#ops];
-				#	@ops = @ops[0..$#ops-1];
-				#}
         push @ops, $s;
 			}
 			when (['*', '/']) {

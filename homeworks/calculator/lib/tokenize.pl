@@ -30,7 +30,6 @@ sub tokenize {
 	my @res;
 
 	my @chunks = split m{([-+*/^()])}, $expr;
-  #print print join(",", @chunks)."\n";
 
 	for my $c (@chunks) {
 		next if $c =~ /^\s*$/;
