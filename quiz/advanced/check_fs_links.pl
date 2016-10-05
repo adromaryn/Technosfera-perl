@@ -41,6 +41,8 @@ sub checkOutside($$$) {
   } elsif (-l $link) {
 		checkRing($root, $link, $entry);
 		checkOutside($root, $link, $entry);
+	} elsif (-d $link) {
+		check($root, $link);
 	}
 }
 
