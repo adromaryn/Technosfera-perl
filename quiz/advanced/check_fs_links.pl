@@ -19,7 +19,7 @@ sub checkRing($$$) {
   my $l = shift;
 	my $entry = shift;
   my $link = File::Spec->rel2abs(readlink $l);
-  if (index($l, $link) != -1) {
+  if (index($entry, $link) != -1) {
     say "$entry ---> $link - ring";
   } elsif (-l $link) {
 		checkRing($root, $link, $entry);
