@@ -54,7 +54,7 @@ sub mus_split($) {
 
 sub col_width(@) {
   my @width;
-  for (my $i = 0; $i < @_; $i++){
+  for (my $i = 0; $i < @{ $_[0] }; $i++){
     my @col = map $_->[ $i ], @_;
     push @width, max(map length($_), @col) + 2;
   }
@@ -113,6 +113,20 @@ sub mus_sort($$$) {
   }
 }
 
-our @EXPORT = qw(mus_input mus_split mus_table mus_sort);
+sub mus_grep($$$$) {
+  my @data = @{ shift @_ };
+  my $col = shift @_;
+  my $filter = shift @_;
+  my $is_num = shift @_;
+  if ($is_num) {
+    @data = grep @{ $_ }[$col] == $filter, @data;
+    return \@data;
+  } else {
+    @data = grep @{ $_ }[$col] eq $filter, @data;
+    return \@data;
+  }
+}
+
+our @EXPORT = qw(mus_input mus_split mus_table mus_sort mus_grep);
 
 1;
