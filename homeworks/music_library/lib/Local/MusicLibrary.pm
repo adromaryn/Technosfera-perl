@@ -44,7 +44,7 @@ sub mus_input() {
 sub mus_split($) {
   my @a = split "/", shift @_;
   my @song;
-  push @song, "./".$a[1];
+  push @song, $a[1];
   push @song, split " - ", $a[2], 2;
   my @file = split /\./, $a[-1];
   push @song, join(".", @file[0 .. $#file - 1]), $file[-1];
@@ -54,7 +54,7 @@ sub mus_split($) {
 
 sub col_width(@) {
   my @width;
-  for (my $i = 0; $i < 5; $i++){
+  for (my $i = 0; $i < @_; $i++){
     my @col = map $_->[ $i ], @_;
     push @width, max(map length($_), @col) + 2;
   }
@@ -100,6 +100,19 @@ sub mus_table(@){
   }
 }
 
-our @EXPORT = qw(mus_input mus_split mus_table);
+sub mus_sort($$$) {
+  my @data = @{ shift @_ };
+  my $col = shift @_;
+  my $is_num = shift @_;
+  if ($is_num) {
+    @data = sort { @{ $a }[$col] <=> @{ $b }[$col] } @data;
+    return \@data;
+  } else {
+    @data = sort { @{ $a }[$col] cmp @{ $b }[$col] } @data;
+    return \@data;
+  }
+}
+
+our @EXPORT = qw(mus_input mus_split mus_table mus_sort);
 
 1;
