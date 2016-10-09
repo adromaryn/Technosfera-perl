@@ -21,24 +21,26 @@ my $year;
 my $album;
 my $track;
 my $format;
+my $columns;
 GetOptions('sort=s' => \$sort,
            'band=s' => \$band,
 					 'year=i' => \$year,
 					 'album=s' => \$album,
 					 'track=s' => \$track,
-					 'format=s' => \$format) or
-					 die "Usage: $0 --sort COLUMN --band BAND --year YEAR --album ALBUM --track TRACK --format FORMAT\n";
+					 'format=s' => \$format,
+					 'columns=s', => \$columns) or
+					 die "Usage: $0 [--sort COLUMN --band BAND --year YEAR --album ALBUM --track TRACK --format FORMAT --columns COL1,COL2,...]\n";
 my $data = mus_input();
 my @data;
+my %col_hash = (
+	"band"   => 0,
+	"year"   => 1,
+	"album"  => 2,
+	"track"  => 3,
+	"format" => 4
+);
 if ($sort) {
-  my %sort_hash = (
-	  "band"   => 0,
-		"year"   => 1,
-		"album"  => 2,
-		"track"  => 3,
-		"format" => 4
-	);
-	$data = mus_sort($data, $sort_hash{$sort}, $sort eq "year");
+	$data = mus_sort($data, $col_hash{$sort}, $sort eq "year");
 }
 if ($band) {
 	$data = mus_grep($data, 0, $band, 0);
@@ -54,5 +56,9 @@ if ($track) {
 }
 if ($format) {
 	$data = mus_grep($data, 4, $format, 0);
+}
+if ($columns) {
+	my @columns = map $col_hash{$_}, (split "," , $columns);
+	$data = mus_columns($data, \@columns);
 }
 mus_table(@$data);

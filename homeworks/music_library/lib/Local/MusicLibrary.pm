@@ -66,11 +66,11 @@ sub wall(@) {
 }
 
 sub top(@) {
-  return "/" . ("-" x (sum(@_) + 4)) . "\\";
+  return "/" . ("-" x (sum(@_) + $#_)) . "\\";
 }
 
 sub bottom(@) {
-  return "\\" . ("-" x (sum(@_) + 4)) . "/";
+  return "\\" . ("-" x (sum(@_) + $#_)) . "/";
 }
 
 sub raw($$){
@@ -127,6 +127,16 @@ sub mus_grep($$$$) {
   }
 }
 
-our @EXPORT = qw(mus_input mus_split mus_table mus_sort mus_grep);
+sub mus_columns($$) {
+  my @data = @{ shift @_ };
+  my @col = @{ shift @_ };
+  my @res;
+  for my $d (@data) {
+    push @res, [ map @{ $d }[$_], @col ];
+  }
+	return \@res;
+}
+
+our @EXPORT = qw(mus_input mus_split mus_table mus_sort mus_grep mus_columns);
 
 1;
