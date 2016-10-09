@@ -96,7 +96,7 @@ sub mus_table(@){
     }
     say bottom(@$width);
   } else {
-    print "\n";
+    print "";
   }
 }
 
@@ -131,9 +131,11 @@ sub mus_columns($$) {
   my @data = @{ shift @_ };
   my @col = @{ shift @_ };
   my @res;
-  for my $d (@data) {
-    push @res, [ map @{ $d }[$_], @col ];
-  }
+  if (+@col ne 0) {
+		for my $d (@data) {
+      push @res, [ map @{ $d }[$_], @col ];
+    }
+	}
 	return \@res;
 }
 

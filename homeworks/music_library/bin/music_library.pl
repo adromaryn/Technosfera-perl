@@ -29,7 +29,7 @@ GetOptions('sort=s' => \$sort,
 					 'track=s' => \$track,
 					 'format=s' => \$format,
 					 'columns=s', => \$columns) or
-					 die "Usage: $0 [--sort COLUMN --band BAND --year YEAR --album ALBUM --track TRACK --format FORMAT --columns COL1,COL2,...]\n";
+					 die "Usage: $0 [--sort COLUMN --band BAND --year YEAR --album ALBUM --track TRACK --format FORMAT --columns [COL1,COL2,...]]\n";
 my $data = mus_input();
 my @data;
 my %col_hash = (
@@ -60,5 +60,7 @@ if ($format) {
 if ($columns) {
 	my @columns = map $col_hash{$_}, (split "," , $columns);
 	$data = mus_columns($data, \@columns);
+} elsif (defined $columns) {
+	$data = mus_columns($data, []);
 }
 mus_table(@$data);
