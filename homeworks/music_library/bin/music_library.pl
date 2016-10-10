@@ -13,6 +13,9 @@ BEGIN{
 no warnings 'experimental';
 
 use Local::MusicLibrary;
+use Local::MusicLibrary::Sort;
+use Local::MusicLibrary::Grep;
+use Local::MusicLibrary::Columns;
 use Getopt::Long qw(GetOptions);
 
 my $sort;

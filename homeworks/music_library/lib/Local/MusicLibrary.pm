@@ -77,10 +77,9 @@ sub raw($$){
   my @strings = @{ shift @_ };
   my @width = @{ shift @_ };
   return "|" .
-         (join "|", map(
-           sprintf("%${width[$_]}s", $strings[$_] . " "),
-           (0..$#strings)
-         )) .
+         (join "|",
+				   map { sprintf("%${width[$_]}s", $strings[$_] . " ") } (0..$#strings)
+         ) .
          "|";
 }
 
@@ -100,45 +99,6 @@ sub mus_table(@){
   }
 }
 
-sub mus_sort($$$) {
-  my @data = @{ shift @_ };
-  my $col = shift @_;
-  my $is_num = shift @_;
-  if ($is_num) {
-    @data = sort { @{ $a }[$col] <=> @{ $b }[$col] } @data;
-    return \@data;
-  } else {
-    @data = sort { @{ $a }[$col] cmp @{ $b }[$col] } @data;
-    return \@data;
-  }
-}
-
-sub mus_grep($$$$) {
-  my @data = @{ shift @_ };
-  my $col = shift @_;
-  my $filter = shift @_;
-  my $is_num = shift @_;
-  if ($is_num) {
-    @data = grep @{ $_ }[$col] == $filter, @data;
-    return \@data;
-  } else {
-    @data = grep @{ $_ }[$col] eq $filter, @data;
-    return \@data;
-  }
-}
-
-sub mus_columns($$) {
-  my @data = @{ shift @_ };
-  my @col = @{ shift @_ };
-  my @res;
-  if (+@col ne 0) {
-		for my $d (@data) {
-      push @res, [ map @{ $d }[$_], @col ];
-    }
-	}
-	return \@res;
-}
-
-our @EXPORT = qw(mus_input mus_split mus_table mus_sort mus_grep mus_columns);
+our @EXPORT = qw(mus_input mus_split mus_table);
 
 1;
