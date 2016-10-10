@@ -42,9 +42,6 @@ my %col_hash = (
 	"track"  => 3,
 	"format" => 4
 );
-if ($sort) {
-	$data = mus_sort($data, $col_hash{$sort}, $sort eq "year");
-}
 if ($band) {
 	$data = mus_grep($data, 0, $band, 0);
 }
@@ -59,6 +56,9 @@ if ($track) {
 }
 if ($format) {
 	$data = mus_grep($data, 4, $format, 0);
+}
+if ($sort) {
+	$data = mus_sort($data, $col_hash{$sort}, $sort eq "year");
 }
 if ($columns) {
 	my @columns = map $col_hash{$_}, (split "," , $columns);
