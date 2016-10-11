@@ -12,10 +12,9 @@ BEGIN{
 }
 no warnings 'experimental';
 
-use Local::MusicLibrary;
-use Local::MusicLibrary::Sort;
-use Local::MusicLibrary::Grep;
-use Local::MusicLibrary::Columns;
+use Local::MusicLibrary::IO;
+use Local::MusicLibrary::Utils;
+use Local::MusicLibrary::View;
 use Getopt::Long qw(GetOptions);
 
 my $sort;

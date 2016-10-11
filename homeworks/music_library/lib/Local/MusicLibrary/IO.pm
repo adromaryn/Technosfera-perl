@@ -1,4 +1,4 @@
-package Local::MusicLibrary;
+package Local::MusicLibrary::IO;
 
 use strict;
 use warnings;

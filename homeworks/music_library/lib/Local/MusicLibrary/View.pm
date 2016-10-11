@@ -1,4 +1,4 @@
-package Local::MusicLibrary::Columns;
+package Local::MusicLibrary::View;
 
 use strict;
 use warnings;
