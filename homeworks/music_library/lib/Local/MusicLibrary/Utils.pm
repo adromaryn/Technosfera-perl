@@ -21,10 +21,10 @@ sub mus_grep($$$$) {
   my $filter = shift @_;
   my $is_num = shift @_;
   if ($is_num) {
-    @$data = grep { @{ $_ }[$col] == $filter } @$data;
+    @$data = grep { $_ -> {$col} == $filter } @$data;
     return $data;
   } else {
-    @$data = grep { @{ $_ }[$col] eq $filter } @$data;
+    @$data = grep { $_ -> {$col} eq $filter } @$data;
     return $data;
   }
 }
@@ -34,10 +34,10 @@ sub mus_sort($$$) {
   my $col = shift @_;
   my $is_num = shift @_;
   if ($is_num) {
-    @$data = sort { @{ $a }[$col] <=> @{ $b }[$col] } @$data;
+    @$data = sort { $a->{$col} <=> $b->{$col} } @$data;
     return $data;
   } else {
-    @$data = sort { @{ $a }[$col] cmp @{ $b }[$col] } @$data;
+    @$data = sort { $a->{$col} cmp $b->{$col} } @$data;
     return $data;
   }
 }

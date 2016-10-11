@@ -13,6 +13,7 @@ no warnings 'experimental';
 
 use Exporter 'import';
 use List::Util qw(max sum);
+use Local::MusicLibrary::Utils;
 
 =encoding utf8
 
@@ -32,6 +33,8 @@ our $VERSION = '1.00';
 
 =cut
 
+my @fields = qw(band year album track format);
+
 sub mus_input() {
   my @data;
   while (<>) {
@@ -43,57 +46,87 @@ sub mus_input() {
 
 sub mus_split($) {
   my @a = split "/", shift @_;
-  my @song;
-  push @song, $a[1];
-  push @song, split " - ", $a[2], 2;
+  my %song;
+	$song{ band } = $a[1];
+  $song{ year } = (split " - ", $a[2], 2)[0];
+	$song{ album } = (split " - ", $a[2], 2)[1];
   my @file = split /\./, $a[-1];
-  push @song, join(".", @file[0 .. $#file - 1]), $file[-1];
-  chomp $song[-1];
-  return \@song;
+	$song{ track } = join(".", @file[0 .. $#file - 1]);
+	$song{ format } = $file[-1];
+	chomp $song{ format };
+  return \%song;
 }
 
 sub col_width(@) {
-  my @width;
-  for (my $i = 0; $i < @{ $_[0] }; $i++){
-    my @col = map $_->[ $i ], @_;
-    push @width, max(map length($_), @col) + 2;
+  my %width;
+  for my $key ( keys %{ $_[0] } ){
+    my @col = map {$_->{ $key }} @_;
+    $width{ $key } = max(map length($_), @col) + 2;
   }
-  return \@width;
+  return \%width;
 }
 
-sub wall(@) {
-  return "|" . (join "+", map("-"x$_, @_)) . "|";
+sub wall($$) {
+	my $width = shift;
+	my $cols = shift;
+  return "|" . (join "+", map { "-"x %$width{$_} } @$cols) . "|";
 }
 
-sub top(@) {
-  return "/" . ("-" x (sum(@_) + $#_)) . "\\";
+sub top($$) {
+	my $width = shift;
+	my $cols = shift;
+  return "/" . ("-" x (sum(map {$width -> {$_}} @$cols) + @$cols - 1)) . "\\";
 }
 
-sub bottom(@) {
-  return "\\" . ("-" x (sum(@_) + $#_)) . "/";
+sub bottom($$) {
+	my $width = shift;
+	my $cols = shift;
+  return "\\" . ("-" x (sum(map {$width -> {$_}} @$cols) + @$cols - 1)) . "/";
 }
 
-sub raw($$){
-  my @strings = @{ shift @_ };
-  my @width = @{ shift @_ };
-  return "|" .
+sub raw($$$){
+	my $items = shift;
+	my $width = shift;
+	my $cols = shift;
+
+  return "|".
          (join "|",
-				   map { sprintf("%${width[$_]}s", $strings[$_] . " ") } (0..$#strings)
+				   map { (" " x ($width->{$_} - length($items->{$_}) - 1) . $items->{$_} . " ") } @$cols
          ) .
          "|";
 }
 
-sub mus_table(@){
-  if (@_){
-    my $width = col_width(@_);
-    say top(@$width);
-    for (my $i = 0; $i < @_; $i++) {
-      say raw($_[$i], $width);
-      if ($i != @_ - 1) {
-        say wall(@$width);
-      }
-    }
-    say bottom(@$width);
+sub mus_table($$){
+	my $data = shift @_;
+	my $params = shift @_;
+	for my $field (@fields) {
+		if ($params->{ $field }) {
+			mus_grep($data, $field, $params->{ $field }, $field eq "year");
+		}
+	}
+  if (@$data){
+    my $width = col_width(@$data);
+		if ($params->{ sort }) {
+			mus_sort($data, $params->{ sort }, $params->{ sort } eq "year");
+		}
+		my @cols;
+		if ($params->{ columns }) {
+			@cols = split "," , $params->{ columns };
+		} elsif (defined $params->{ columns }) {
+			print "";
+		} else {
+			@cols = qw(band year album track format);
+		}
+		if (not defined $params->{ columns } or $params->{ columns }) {
+			say top($width, \@cols);
+	    for (my $i=0; $i < @$data; $i++) {
+	      say raw(@$data[$i], $width, \@cols);
+	      if ($i != @$data - 1) {
+	        say wall($width, \@cols);
+	      }
+	    }
+	    say bottom($width, \@cols);
+		}
   } else {
     print "";
   }
