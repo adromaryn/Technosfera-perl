@@ -1,1 +1,1 @@
-{ "key1": "string : value", "key2": -3.1415, "key3": ["nested array"], "key4": "nested" }
+{ "key1": "string : value", "key2": -3.1415,  "key3":  { "nested": "object" }, "key4": ["nested array"], "key5": 0 }
