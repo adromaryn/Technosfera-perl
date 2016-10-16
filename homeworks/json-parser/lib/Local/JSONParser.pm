@@ -63,6 +63,9 @@ sub parse_hash {
       my $string = $1;
       $string =~ s/(?<=\\u....)/\}/;
       $string =~ s/\\u/\\x\{/;
+      $string =~ s/@/\\@/;
+      $string =~ s/%/\\%/;
+      $string =~ s/\$/\\\$/;
       $res{$key} = eval($string);
     } elsif ($2 =~ /^\s*([-\+]?\+?\d*?\.?\d*)\s*$/s) {
       $res{$key} = 0+$1;
@@ -113,6 +116,9 @@ sub parse_array {
       my $string = $1;
       $string =~ s/(?<=\\u....)/\}/;
       $string =~ s/\\u/\\x\{/;
+      $string =~ s/@/\\@/;
+      $string =~ s/%/\\%/;
+      $string =~ s/\$/\\\$/;
       push @res, eval($string);
     } elsif ($1 =~ /^\s*([-\+]?\+?\d*?\.?\d*)\s*$/s) {
       push  @res, (0+$1);
