@@ -107,7 +107,7 @@ sub parse_array {
     }
     if ($1 =~ /^\s*(\".*?\")\s*$/s) {
       my $string = $1;
-      say $string;
+      $string =~ s/\\\\/\0/;
       $string =~ s/(?<=\\u[0-9a-fA-F]{4})/\}/;
       $string =~ s/\\u(?=[0-9a-fA-F]{4})/\\x\{/;
       $string =~ s/\\u(?=.{3}[^0-9a-fA-F]|.{2}[^0-9a-fA-F]|.[^0-9a-fA-F]|[^0-9a-fA-F])/\\\\u/;
