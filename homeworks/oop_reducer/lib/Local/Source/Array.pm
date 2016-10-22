@@ -6,7 +6,7 @@ use parent 'Local::Source';
 
 =encoding utf8
 =head1 NAME
-Local::Source::Array - get elements of array to reducer
+Local::Source::Array - get elements of the array to reducer
 =head1 VERSION
 Version 1.00
 =cut

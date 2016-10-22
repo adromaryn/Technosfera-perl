@@ -4,11 +4,10 @@ use strict;
 use warnings;
 use parent 'Local::Reducer';
 use List::Util 'max';
-use feature 'say';
 
 =encoding utf8
 =head1 NAME
-Local::Reducer::Sum - reducer for finding max difference between filds
+Local::Reducer::Sum - reducer for finding max difference between fields
 =head1 VERSION
 Version 1.00
 =cut

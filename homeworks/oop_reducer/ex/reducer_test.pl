@@ -11,6 +11,7 @@ use Local::Reducer::Sum;
 use Local::Reducer::MaxDiff;
 use Local::Source::Array;
 use Local::Source::Text;
+use Local::Source::FileHandler;
 
 my $sreducer = Local::Reducer::Sum->new(
     field => 'price',
@@ -48,4 +49,3 @@ say $reducer -> reduce_n(2);
 say $reducer -> reduced;
 say $reducer -> reduce_all;
 say $reducer -> reduced;
-say $reducer -> reduce_n(1);
