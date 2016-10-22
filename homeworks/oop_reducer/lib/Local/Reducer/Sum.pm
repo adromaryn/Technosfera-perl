@@ -30,3 +30,5 @@ sub reduce_n {
   $self -> {array} = [@arr[$n..$#arr]];
   return $res;
 }
+
+1;

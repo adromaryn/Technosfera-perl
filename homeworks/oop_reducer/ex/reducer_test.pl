@@ -9,6 +9,8 @@ use utf8;
 use Local::Reducer;
 use Local::Reducer::Sum;
 use Local::Reducer::MaxDiff;
+use Local::Reducer::MinMaxAvg;
+use Local::Reducer::MinMaxAvg::Reduced;
 use Local::Source::Array;
 use Local::Source::Text;
 use Local::Source::FileHandler;
@@ -49,3 +51,36 @@ say $reducer -> reduce_n(2);
 say $reducer -> reduced;
 say $reducer -> reduce_all;
 say $reducer -> reduced;
+
+say "";
+
+my $mmareducer = Local::Reducer::MinMaxAvg->new(
+    field => 'price',
+    source => Local::Source::Array->new(array => [
+        '{"price": 1}',
+        '{"price": 2}',
+        '{"price": 3}',
+        '{"price": 5}',
+        '{"price": 10}'
+    ]),
+    row_class => 'Local::Row::JSON',
+    initial_value => Local::Reducer::MinMaxAvg::Reduced -> new(),
+);
+
+sub say_rd {
+  $_ = shift @_;
+  say $_ -> get_min . " " . $_ -> get_max . " " . $_ -> get_avg . " ";
+}
+
+my $reduced = $mmareducer -> reduce_n(2);
+say_rd $reduced;
+$reduced = $mmareducer -> reduced;
+say_rd $reduced;
+$reduced = $mmareducer -> reduce_n(2);
+say_rd $reduced;
+$reduced = $mmareducer -> reduced;
+say_rd $reduced;
+$reduced = $mmareducer -> reduce_all;
+say_rd $reduced;
+$reduced = $mmareducer -> reduced;
+say_rd $reduced;
