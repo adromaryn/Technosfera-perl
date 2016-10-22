@@ -1,13 +1,14 @@
-package Local::Reducer::Sum;
+package Local::Reducer::MaxDiff;
 
 use strict;
 use warnings;
 use parent 'Local::Reducer';
+use List::Util 'max';
 use feature 'say';
 
 =encoding utf8
 =head1 NAME
-Local::Reducer::Sum - reducer for sum with field
+Local::Reducer::Sum - reducer for finding max difference between filds
 =head1 VERSION
 Version 1.00
 =cut
@@ -20,11 +21,12 @@ our $VERSION = '1.00';
 sub reduce_n {
   my ($self, $n) = @_;
   my @arr = @{ $self -> {array} };
-  die "Local::Reducer::MaxDiff: can't reduce_n, you haven't $n elements" if (@arr < $n);
-  my $field = $self -> {field};
+  die "Local::Reducer::Sum: can't reduce_n, you haven't $n elements" if (@arr < $n);
+  my $top = $self -> {top};
+  my $bottom = $self -> {bottom};
   my $res = $self -> {reduced};
   for my $i (0..$n-1) {
-    $res += $arr[$i] -> get($field, 0);
+    $res = max($res, abs($arr[$i] -> get($top, 0) - $arr[$i] -> get($bottom, 0)));
   }
   $self -> {reduced} = $res;
   $self -> {array} = [@arr[$n..$#arr]];

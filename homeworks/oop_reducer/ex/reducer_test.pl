@@ -8,6 +8,7 @@ use lib "$FindBin::Bin/../lib";
 use utf8;
 use Local::Reducer;
 use Local::Reducer::Sum;
+use Local::Reducer::MaxDiff;
 use Local::Source::Array;
 use Local::Source::Text;
 
@@ -32,3 +33,19 @@ say $sreducer -> reduce_all;
 say $sreducer -> reduced;
 
 say "";
+
+my $reducer = Local::Reducer::MaxDiff->new(
+    top => 'received',
+    bottom => 'sended',
+    source => Local::Source::Text->new(text =>"sended:1024,received:2048\nsended:2048,received:10240\nsended:9999,received:1100\nsended:10240,received:1024"),
+    row_class => 'Local::Row::Simple',
+    initial_value => 0,
+);
+
+say $reducer -> reduce_n(1);
+say $reducer -> reduced;
+say $reducer -> reduce_n(2);
+say $reducer -> reduced;
+say $reducer -> reduce_all;
+say $reducer -> reduced;
+say $reducer -> reduce_n(1);

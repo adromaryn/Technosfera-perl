@@ -43,4 +43,10 @@ sub reduced {
   return $self->{reduced};
 }
 
+sub reduce_all {
+  my ($self, $n) = @_;
+  my @arr = @{ $self -> {array} };
+  return $self -> reduce_n($#arr+1);
+}
+
 1;
