@@ -20,7 +20,7 @@ our $VERSION = '1.00';
 
 sub reduce_n {
   my ($self, $n) = @_;
-  my @arr = @{ $self -> {array} };
+  my @arr = @{ $self -> SUPER::reduce_n($n) };
   die "Local::Reducer::MaxDiff: can't reduce_n, you haven't $n elements" if (@arr < $n);
   my $field = $self -> {field};
   my $res = $self -> {reduced};
@@ -37,7 +37,6 @@ sub reduce_n {
     $res -> {num} ++;
   }
   $self -> {reduced} = $res;
-  $self -> {array} = [@arr[$n..$#arr]];
   return $res;
 }
 

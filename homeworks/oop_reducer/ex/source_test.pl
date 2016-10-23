@@ -45,3 +45,5 @@ for my $i (0..4) {
     say 'undef';
   }
 }
+
+close($fh);
