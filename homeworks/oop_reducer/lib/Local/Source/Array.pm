@@ -16,9 +16,4 @@ our $VERSION = '1.00';
 =head1 SYNOPSIS
 =cut
 
-sub new {
-  my ($class, %params) = @_;
-  return bless \%params, $class;
-}
-
 1;
