@@ -16,17 +16,16 @@ our $VERSION = '1.00';
 =head1 SYNOPSIS
 =cut
 
-sub new {
-  my ($class, %params) = @_;
-  my $fh = $params{fh};
-  my @array;
-  while (readline($fh)) {
-    chomp $_;
-    push @array, $_;
+sub next {
+  my ($self) = @_;
+  my $fh = $self -> { fh };
+  my $str = readline($fh);
+  if ($str) {
+    chomp $str;
+    return $str;
+  } else {
+    return undef;
   }
-
-  my %res = ("array", \@array);
-  return bless \%res, $class;
 }
 
 1;
