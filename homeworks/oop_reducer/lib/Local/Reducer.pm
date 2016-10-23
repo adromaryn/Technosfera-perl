@@ -31,37 +31,4 @@ sub reduced {
   return $self->{reduced};
 }
 
-sub reduce_n {
-  my ($self, $n) = @_;
-  my $source = $self -> { source };
-  my $row_class = $self -> { row_class };
-  my @arr;
-  if (defined $self -> {array}) {
-    @arr = @{ $self -> {array} };
-    $self -> {array} = undef;
-  } else {
-    for (0..$n-1) {
-      my $s = $source -> next();
-      die "Local::Reducer: can't reduce_n, you haven't $n elements" if not defined $s;
-      push @arr, $row_class -> new(str => $s);
-    }
-  }
-  return \@arr;
-}
-
-sub reduce_all {
-  my ($self) = @_;
-  my @arr;
-  while (1) {
-    my $elem = $self -> {source} -> next();
-    if ($elem) {
-      push @arr, $self -> {row_class} -> new(str => $elem);
-    } else {
-      last;
-    }
-  }
-  $self -> {array} = \@arr;
-  return $self -> reduce_n($#arr+1);
-}
-
 1;

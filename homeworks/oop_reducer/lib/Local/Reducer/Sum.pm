@@ -19,12 +19,28 @@ our $VERSION = '1.00';
 
 sub reduce_n {
   my ($self, $n) = @_;
-  my @arr = @{ $self -> SUPER::reduce_n($n) };
-  die "Local::Reducer::Sum: can't reduce_n, you haven't $n elements" if (@arr < $n);
+  my $source = $self -> { source };
+  my $row_class = $self -> { row_class };
   my $field = $self -> {field};
   my $res = $self -> {reduced};
-  for my $i (0..$n-1) {
-    $res += $arr[$i] -> get($field, 0);
+  for (0..$n-1) {
+    my $s = $source -> next();
+    die "Local::Reducer::Sum: can't reduce_n, you haven't $n elements" if not defined $s;
+    $res += $row_class -> new(str => $s) -> get($field, 0);
+  }
+  $self -> {reduced} = $res;
+  return $res;
+}
+
+sub reduce_all {
+  my ($self) = @_;
+  my $source = $self -> { source };
+  my $row_class = $self -> { row_class };
+  my $field = $self -> {field};
+  my $res = $self -> {reduced};
+  my $s;
+  while (defined ($s = $source -> next())) {
+    $res += $row_class -> new(str => $s) -> get($field, 0);
   }
   $self -> {reduced} = $res;
   return $res;
