@@ -83,9 +83,9 @@ sub start_server {
 						if ($type == Local::TCP::Calc::TYPE_START_WORK()) {
 							print 555;
 						} elsif($type == Local::TCP::Calc::TYPE_CHECK_WORK()) {
-							print 666;
+							my $task = $answer{message};
 							# Если необходимо добавляем задание в очередь (проверяем получилось или нет)
-							#$q -> add
+							$q -> add($task);
 							#$self -> check_queue_workers($q);
 						} else {
 							my $error = "Wrong request type";

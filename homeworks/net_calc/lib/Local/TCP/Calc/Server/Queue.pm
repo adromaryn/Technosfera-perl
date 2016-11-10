@@ -2,38 +2,52 @@ package Local::TCP::Calc::Server::Queue;
 
 use strict;
 use warnings;
+no warnings 'experimental';
 
 use Mouse;
 use Local::TCP::Calc;
+use Fcntl ':flock';
 
 has f_handle       => (is => 'rw', isa => 'FileHandle');
 has queue_filename => (is => 'ro', isa => 'Str', default => '/tmp/local_queue.log');
 has max_task       => (is => 'rw', isa => 'Int', default => 0);
-has max_queue_size       => (is => 'rw', isa => 'Int', default => 0);
 
 sub init {
 	my $self = shift;
 	my $max_task = shift;
-	if (@_) {
-		$self->{queue_filename} = shift;
-	}
 	# Подготавливаем очередь к первому использованию если это необходимо
 	$self->{max_task} = $max_task;
-	open(my $fh, '<', $self->{queue_filename});
-	$self->{f_handle} = $fh;
 }
 
 sub open {
 	my $self = shift;
 	my $open_type = shift;
 	# Открываем файл с очередью, не забываем про локи, возвращаем содержимое (перловая структура)
+	CORE::open(my $fh, 'r', $self->{queue_filename});
+	flock($fh, LOCK_EX) or die "can't flock: $!";
+	my @lines = <$fh>;
+	CORE::close($fh);
+	my %struct = map {
+		(split ' ', $_)[0] => {
+			task   => (split ' ', $_)[1],
+			status => (split ' ', $_)[2],
+			result => (split ' ', $_)[3]
+		}
+	} @lines;
+	return \%struct;
 }
 
 sub close {
 	my $self = shift;
 	my $struct = shift;
-	#...
 	# Перезаписываем файл с данными очереди (если требуется), снимаем лок, закрываем файл.
+	my @lines = map {
+		$_ . ' ' . $struct->{$_}->{task} . ' ' . $struct->{$_}->{status} . ' ' . $struct->{$_}->{result}
+	} (keys %$struct);
+	CORE::open(my $fh, 'w', $self->{queue_filename});
+	print $fh join("\n", @lines);
+	flock($fh, LOCK_UN) or die "can't flock: $!";
+	CORE::close($fh);
 }
 
 sub to_done {
@@ -68,8 +82,20 @@ sub get {
 sub add {
 	my $self = shift;
 	my $new_work = shift;
-	...
 	# Добавляем новое задание с проверкой, что очередь не переполнилась
+	my $struct = $self->open(1);
+	my @free = keys %{{
+		map { $_ => undef }
+		grep {
+			not defined $struct->{$_}
+		}
+		(1..$self->{max_task})
+	}};
+	if (@free) {
+		my $index = shift @free;
+		$struct->{$index} = {task => $new_work, status => Local::TCP::Calc->STATUS_NEW() , result => 0};
+		$self->close($struct);
+	}
 }
 
 no Mouse;
