@@ -2,6 +2,7 @@ package Local::TCP::Calc::Server::Queue;
 
 use strict;
 use warnings;
+use DDP;
 no warnings 'experimental';
 
 use Mouse;
@@ -17,21 +18,27 @@ sub init {
 	my $max_task = shift;
 	# Подготавливаем очередь к первому использованию если это необходимо
 	$self->{max_task} = $max_task;
+	CORE::open(my $fh, '>', $self->{queue_filename});
+	CORE::close($fh);
 }
 
 sub open {
 	my $self = shift;
 	my $open_type = shift;
 	# Открываем файл с очередью, не забываем про локи, возвращаем содержимое (перловая структура)
-	CORE::open(my $fh, 'r', $self->{queue_filename});
+	CORE::open($self->{f_handle}, '<', $self->{queue_filename}) or die "Can't open < ". $self->{queue_filename}.": $!";
+	my $fh = $self->{f_handle};
 	flock($fh, LOCK_EX) or die "can't flock: $!";
 	my @lines = <$fh>;
-	CORE::close($fh);
+	CORE::close($self->{f_handle});
+	for my $line (@lines) {
+		chomp $line;
+	}
 	my %struct = map {
-		(split ' ', $_)[0] => {
-			task   => (split ' ', $_)[1],
-			status => (split ' ', $_)[2],
-			result => (split ' ', $_)[3]
+		(split '_', $_, 4)[0] => {
+			task   => (split '_', $_)[3],
+			status => (split '_', $_)[1],
+			result => (split '_', $_)[2]
 		}
 	} @lines;
 	return \%struct;
@@ -42,12 +49,13 @@ sub close {
 	my $struct = shift;
 	# Перезаписываем файл с данными очереди (если требуется), снимаем лок, закрываем файл.
 	my @lines = map {
-		$_ . ' ' . $struct->{$_}->{task} . ' ' . $struct->{$_}->{status} . ' ' . $struct->{$_}->{result}
+		$_ . '_' . $struct->{$_}->{status} . '_' . $struct->{$_}->{result} . '_' . $struct->{$_}->{task}
 	} (keys %$struct);
-	CORE::open(my $fh, 'w', $self->{queue_filename});
+	CORE::open($self->{f_handle}, '>', $self->{queue_filename}) or die "Can't open < ". $self->{queue_filename}.": $!";
+	my $fh = $self->{f_handle};
 	print $fh join("\n", @lines);
 	flock($fh, LOCK_UN) or die "can't flock: $!";
-	CORE::close($fh);
+	CORE::close($self->{f_handle});
 }
 
 sub to_done {
@@ -61,8 +69,19 @@ sub to_done {
 sub get_status {
 	my $self = shift;
 	my $id = shift;
-	#...
-	# Возвращаем статус задания по id, и в случае DONE или ERROR имя файла с результатом
+	my $struct = $self->open(1);
+	if (defined $struct->{$id}) {
+		# Возвращаем статус задания по id, и в случае DONE или ERROR имя файла с результатом
+		my $status = $struct->{$id}->{status};
+		if ($status == Local::TCP::Calc::STATUS_DONE or $status == Local::TCP::Calc::STATUS_ERROR) {
+			return [$status, $struct->{$id}->{result}];
+		} else {
+			return [$status,''];
+		}
+	} else {
+		return ['-1','']
+	}
+	$self->close($struct);
 }
 
 sub delete {
@@ -75,8 +94,17 @@ sub delete {
 
 sub get {
 	my $self = shift;
-	...
-	# Возвращаем задание, которое необходимо выполнить (id, tasks)
+	my $struct = $self->open(1);
+	my @keys = grep {$struct->{$_}->{status} == Local::TCP::Calc::STATUS_NEW} keys %{$struct};
+	if (@keys) {
+		my $k = shift @keys;
+		$struct->{$k}->{status} = Local::TCP::Calc::STATUS_WORK;
+		# Возвращаем задание, которое необходимо выполнить (id, tasks)
+		return [$k, $struct->{$k}->{task}];
+	} else {
+		return ['0','0'];
+	}
+	$self->close($struct);
 }
 
 sub add {
@@ -84,17 +112,22 @@ sub add {
 	my $new_work = shift;
 	# Добавляем новое задание с проверкой, что очередь не переполнилась
 	my $struct = $self->open(1);
-	my @free = keys %{{
+	my @free = sort keys %{{
 		map { $_ => undef }
 		grep {
 			not defined $struct->{$_}
 		}
 		(1..$self->{max_task})
 	}};
+
 	if (@free) {
 		my $index = shift @free;
-		$struct->{$index} = {task => $new_work, status => Local::TCP::Calc->STATUS_NEW() , result => 0};
+	 	$struct->{$index} = {task => $new_work, status => Local::TCP::Calc->STATUS_NEW() , result => '0'};
 		$self->close($struct);
+		return 1;
+	} else {
+		$self->close($struct);
+		return '';
 	}
 }
 

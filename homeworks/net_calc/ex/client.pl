@@ -12,4 +12,5 @@ my $server =  Local::TCP::Calc::Client -> set_connect(
     '3000'
 );
 
-say Local::TCP::Calc::Client -> do_request($server, 4, "message");
+say Local::TCP::Calc::Client -> do_request($server, 1, "message");
+#say Local::TCP::Calc::Client -> do_request($server, 1, "message");

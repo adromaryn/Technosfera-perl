@@ -80,13 +80,28 @@ sub start_server {
 		   		        $client ->send($res."\n");
 					} else {
 
-						if ($type == Local::TCP::Calc::TYPE_START_WORK()) {
+						if ($type == Local::TCP::Calc::TYPE_CHECK_WORK()) {
 							print 555;
-						} elsif($type == Local::TCP::Calc::TYPE_CHECK_WORK()) {
+						} elsif($type == Local::TCP::Calc::TYPE_START_WORK()) {
 							my $task = $answer{message};
 							# Если необходимо добавляем задание в очередь (проверяем получилось или нет)
-							$q -> add($task);
-							#$self -> check_queue_workers($q);
+							my $queue_ok = $q->add($task);
+							if ($queue_ok) {
+							    my $data = {
+							    	header => Local::TCP::Calc->pack_header(Local::TCP::Calc::TYPE_CONN_OK(), 2),
+								    message => 'ok'
+							    };
+							my $res= encode_json $data;
+							$client ->send($res."\n");
+							} else {
+								my $error = "Queue overflow";
+								my $data = {
+									header => Local::TCP::Calc->pack_header(Local::TCP::Calc::TYPE_CONN_ERR(), length $error),
+									message => $error
+								};
+								my $res= encode_json $data;
+					   		    $client ->send($res."\n");
+							}
 						} else {
 							my $error = "Wrong request type";
 							my $data = {
@@ -96,7 +111,6 @@ sub start_server {
 							my $res= encode_json $data;
 				   		    $client ->send($res."\n");
 						}
-
 					}
 				}
 				close( $client );
