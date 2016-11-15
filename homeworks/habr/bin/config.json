@@ -1,0 +1,15 @@
+{
+    "db" : [
+        "DBI:mysql:database=habr;host=localhost:3151426",
+        "username",
+        "password"
+    ],
+    "memd" : {
+        "servers" : [
+            {
+                "address" : "localhost:11211"
+            }
+        ],
+        "namespace" : "habr:"
+    }
+}
