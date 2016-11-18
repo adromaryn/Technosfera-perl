@@ -8,18 +8,22 @@ use LWP::UserAgent;
 #install LWP::Protocol::https
 use HTML::TreeBuilder::XPath;
 use Local::Habr::Post;
+use Local::Habr::DB;
+use Local::Habr::Cache;
 use JSON::XS;
+use utf8;
+use Encode qw(decode);
 
 has name   => (is => 'ro', isa => 'Str', required => 1);
-has karma  => (is => 'ro', isa => 'Int', required => 1);
-has rating => (is => 'ro', isa => 'Int', required => 1);
+has karma  => (is => 'ro', isa => 'Num', required => 1);
+has rating => (is => 'ro', isa => 'Num', required => 1);
 
 sub get_by_name {
     my $pkg = shift;
     my $name = shift;
-    my $dbh = shift;
     my $refresh = shift;
-    my $memd = shift;
+    my $dbh = Local::Habr::DB->instance()->{DB};
+    my $memd = Local::Habr::Cache->instance()->{memd};
     if ($memd and my $val = $memd->get($name) and not $refresh) {
         my $user = decode_json $val;
         return $pkg->new(
@@ -50,23 +54,21 @@ sub get_by_name {
                 my @karma = $tree->findvalues('//div[ @class = "voting-wjt__counter-score js-karma_num" ]');
                 my $karma;
                 if (@karma) {
-                    $karma = int((split ',', $karma[0])[0]);
+                    $karma = join '.', (split ',', decode("utf8", $karma[0]));
+                    $karma =~ s/–/-/;
+                    $karma = 0 + $karma;
                 } else {
                     $karma = 0;
                 }
-                my @rating = $tree->findvalues('//div[ @class = "voting-wjt__counter-score js-karma_num" ]');
+                my @rating = $tree->findvalues('//div[ @class = "statistic statistic_user-rating" ]//div[ @class = "statistic__value statistic__value_magenta" ]');
                 my $rating;
                 if (@rating) {
-                    $rating = int((split ',', $karma[0])[0]);
+                    $rating = 0 + (join '.' , (split ',', $rating[0]));
                 } else {
                     $rating = 0;
                 }
-                my $del = $dbh->prepare(
-                    'DELETE FROM users WHERE name=?'
-                );
-                $del->execute($name);
                 my $user = $dbh->prepare(
-                    'INSERT INTO users (name, karma, rating) VALUES (?, ?, ?)'
+                    'REPLACE INTO users (name, karma, rating) VALUES (?, ?, ?)'
                 );
                 $user->execute($name, $karma, $rating);
                 $memd->set($name, encode_json {karma => $karma, rating => $rating})  if $memd;
@@ -85,12 +87,10 @@ sub get_by_name {
 sub get_by_post {
     my $pkg = shift;
     my $post_id = shift;
-    my $dbh = shift;
     my $refresh = shift;
-    my $memd = shift;
-    my $post = Local::Habr::Post->get($post_id, $dbh, $refresh);
+    my $post = Local::Habr::Post->get($post_id, $refresh, 1);
     if ($post) {
-        return $pkg->get_by_name($post->{author}, $dbh, $refresh, $memd);
+        return $pkg->get_by_name($post->{author}, $refresh);
     } else {
         return undef;
     }
@@ -98,7 +98,7 @@ sub get_by_post {
 
 sub get_selfers {
     my $pkg = shift;
-    my $dbh = shift;
+    my $dbh = Local::Habr::DB->instance()->{DB};
     my $sth = $dbh->prepare(
         'SELECT name, karma, users.rating FROM commenters JOIN users JOIN posts ' .
         'ON commenters.post = posts.id AND posts.author = users.name and users.name = commenters.author'
@@ -111,10 +111,9 @@ sub get_selfers {
 sub get_commenters {
     my $pkg = shift;
     my $post = shift;
-    my $dbh = shift;
     my $refresh = shift;
-    my $commenters = Local::Habr::Commenter->get_by_post($post, $dbh, $refresh);
-    return [map { Local::Habr::User->get_by_name($_->{author}, $dbh, $refresh) } @$commenters];
+    my $commenters = Local::Habr::Commenter->get_by_post($post, $refresh, 1);
+    return [map { Local::Habr::User->get_by_name($_->{author}, $refresh) } @$commenters];
 }
 
 1;

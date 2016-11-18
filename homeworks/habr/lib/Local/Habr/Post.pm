@@ -2,14 +2,17 @@ package Local::Habr::Post;
 
 use strict;
 use warnings;
-use feature 'say';
 
 use Mouse;
 use LWP::UserAgent;
 #install LWP::Protocol::https
 use HTML::TreeBuilder::XPath;
+use Local::Habr::Commenter;
+use Local::Habr::DB;
+use Local::Habr::Cache;
 use JSON::XS;
 use utf8;
+use Encode qw(decode encode);
 
 has author   => (is => 'ro', isa => 'Str', required => 1);
 has topic    => (is => 'ro', isa => 'Str', required => 1);
@@ -20,8 +23,12 @@ has stars    => (is => 'ro', isa => 'Int', required => 1);
 sub get {
     my $pkg = shift;
     my $id = shift;
-    my $dbh = shift;
     my $refresh = shift;
+    my $commenters_refresh = shift;
+    if ($commenters_refresh) {
+        Local::Habr::Commenter->get_by_post($id, $refresh, "");
+    }
+    my $dbh = Local::Habr::DB->instance()->{DB};
     my $sth = $dbh->prepare(
         'SELECT * FROM posts WHERE id = ?'
     );
@@ -35,7 +42,6 @@ sub get {
         my $url = "https://habrahabr.ru/post/$id";
         my $response = $browser->get( $url );
         if ($response->is_success) {
-            #say $response->content;
             my $str= $response->content;
             my $tree = HTML::TreeBuilder::XPath->new_from_content($str);
             my @author = $tree->findvalues('//a[ @class = "post-type__value post-type__value_author" ]');
@@ -51,9 +57,9 @@ sub get {
             my @topic = ($tree->findvalues('//h1[ @class = "post__title" ]//span'));
             my $topic;
             if (@topic == 1) {
-                $topic = $topic[0];
+                $topic = decode("utf8", $topic[0]);
             } else {
-                $topic = $topic[1];
+                $topic = decode("utf8", $topic[1]);
             }
             my @rating = ($tree->findvalues('//div[ @class = "post-additionals" ]//span[ @class = "voting-wjt__result-score js-score" ]'));
             if (@rating == 0) {
@@ -80,12 +86,8 @@ sub get {
             } else {
                 $stars = 0;
             }
-            my $del = $dbh->prepare(
-                'DELETE FROM posts WHERE id=?'
-            );
-            $del->execute($id);
             my $post = $dbh->prepare(
-                'INSERT INTO posts (id, author, topic, rating, views, stars) VALUES (?, ?, ?, ?, ?, ?)'
+                'REPLACE INTO posts (id, author, topic, rating, views, stars) VALUES (?, ?, ?, ?, ?, ?)'
             );
             $post->execute($id, $author, $topic, $rating, $views, $stars);
             return $pkg->new(
@@ -104,7 +106,7 @@ sub get {
 sub desert {
     my $pkg = shift;
     my $num = shift;
-    my $dbh = shift;
+    my $dbh = Local::Habr::DB->instance()->{DB};
     my $sth = $dbh->prepare(
         'SELECT author, topic, rating, views, stars' .
         ' FROM posts p WHERE (SELECT COUNT(*) FROM commenters WHERE (post = p.id)) > ?'

@@ -6,26 +6,9 @@ use FindBin;
 use lib "$FindBin::Bin/../lib";
 use Local::Habr;
 use feature 'say';
-use DBI;
-use Cache::Memcached::Fast;
 use utf8;
 use Getopt::Long;
 use JSON::XS;
-
-my $filename = "$FindBin::Bin/config.json";
-
-my $config = decode_json do {
-   open(my $json_fh, "<:encoding(UTF-8)", $filename)
-      or die("Can't open \$filename\": $!\n");
-   local $/;
-   <$json_fh>
-};
-
-my $dbh = DBI->connect(
-    @{$config->{db}}
-);
-
-my $memd = Cache::Memcached::Fast->new($config->{memd});
 
 my $command = shift;
 
@@ -50,17 +33,13 @@ if ($command eq "user") {
         $out = user_by_name(
             name => $name,
             format => $format,
-            refresh => $refresh,
-            db => $dbh,
-            memd => $memd
+            refresh => $refresh
         );
     } elsif ($post) {
         $out = user_by_post(
             post => $post,
             format => $format,
-            refresh => $refresh,
-            db => $dbh,
-            memd => $memd
+            refresh => $refresh
         );
     } else {
         die 'user [--name name | --post post_id]';
@@ -70,8 +49,7 @@ if ($command eq "user") {
         $out = commenters_by_post(
             post => $post,
             refresh => $refresh,
-            format => $format,
-            db => $dbh
+            format => $format
         );
     } else {
         die 'commenters [--post post_id]';
@@ -81,24 +59,20 @@ if ($command eq "user") {
         $out = post_by_id(
             id => $id,
             format => $format,
-            refresh => $refresh,
-            db => $dbh,
-            memd => $memd
+            refresh => $refresh
         );
     } else {
         die 'post [--id post_id]';
     }
 } elsif ($command eq 'self_commentors') {
     $out = self_commentors(
-        format => $format,
-        db => $dbh
+        format => $format
     );
 } elsif ($command eq 'desert_posts') {
     if (defined $n) {
         $out = desert_posts(
             n => $n,
-            format => $format,
-            db => $dbh
+            format => $format
         );
     } else {
         die 'desert_posts [--n n]';

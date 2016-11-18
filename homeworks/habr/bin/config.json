@@ -2,7 +2,10 @@
     "db" : [
         "DBI:mysql:database=habr;host=localhost:3151426",
         "username",
-        "password"
+        "password",
+        {
+            "mysql_enable_utf8": 1
+        }
     ],
     "memd" : {
         "servers" : [

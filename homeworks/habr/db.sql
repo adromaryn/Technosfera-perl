@@ -1,9 +1,8 @@
 CREATE TABLE users (
-    id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(30) NOT NULL,
-    karma SMALLINT NOT NULL,
-    rating SMALLINT NOT NULL,
-    PRIMARY KEY (id)
+    karma FLOAT NOT NULL,
+    rating FLOAT NOT NULL,
+    PRIMARY KEY (name)
 );
 CREATE TABLE posts (
     id INT NOT NULL,
@@ -11,9 +10,11 @@ CREATE TABLE posts (
     topic VARCHAR(255) NOT NULL,
     rating SMALLINT NOT NULL,
     views INT NOT NULL,
-    stars SMALLINT NOT NULL
+    stars SMALLINT NOT NULL,
+    PRIMARY KEY (id)
 );
 CREATE TABLE commenters (
     author VARCHAR(30) NOT NULL,
-    post INT NOT NULL
+    post INT NOT NULL,
+    PRIMARY KEY (`author`, `post`)
 );

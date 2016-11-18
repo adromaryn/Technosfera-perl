@@ -17,8 +17,9 @@ has post    => (is => 'ro', isa => 'Int', required => 1);
 sub get_by_post {
     my $pkg = shift;
     my $post = shift;
-    my $dbh = shift;
     my $refresh = shift;
+    my $post_refresh = shift;
+    my $dbh = Local::Habr::DB->instance()->{DB};
     my $sth = $dbh->prepare(
         'SELECT * FROM commenters WHERE post = ?'
     );
@@ -27,7 +28,9 @@ sub get_by_post {
     if (@{$cm} and not $refresh) {
         return [map {$pkg->new($_)} @{$cm}];
     } else {
-        Local::Habr::Post->get($post, $dbh);
+        if ($post_refresh) {
+            Local::Habr::Post->get($post, $refresh, "");
+        }
         my $browser = LWP::UserAgent->new(ssl_opts => { verify_hostname => 1 });
         my $url = "https://habrahabr.ru/post/$post";
         my $response = $browser->get( $url );
@@ -36,14 +39,11 @@ sub get_by_post {
             my $tree = HTML::TreeBuilder::XPath->new_from_content($str);
             my @authors = $tree->findvalues('//a[ @class = "comment-item__username" ]');
             my $authors = [map {$pkg->new({author => $_, post => $post})} keys %{{map {$_ => 1} @authors}}];
-            my $del = $dbh->prepare(
-                'DELETE FROM commenters WHERE post=?'
-            );
-            $del->execute($post);
             my $ins = $dbh->prepare(
-                'INSERT INTO commenters (author, post) VALUES (?, ?)'
+                'REPLACE INTO commenters (author, post) VALUES (?, ?)'
             );
             for my $author (@$authors) {
+
                 $ins->execute($author -> {author}, $post);
             }
             return $authors;
