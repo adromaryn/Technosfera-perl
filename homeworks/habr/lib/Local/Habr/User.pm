@@ -22,7 +22,7 @@ sub get_by_name {
     my $pkg = shift;
     my $name = shift;
     my $refresh = shift;
-    my $dbh = Local::Habr::DB->instance()->{DB};
+    my $dbh = Local::Habr::DB->get();
     my $memd = Local::Habr::Cache->instance()->{memd};
     if ($memd and my $val = $memd->get($name) and not $refresh) {
         my $user = decode_json $val;
@@ -98,7 +98,7 @@ sub get_by_post {
 
 sub get_selfers {
     my $pkg = shift;
-    my $dbh = Local::Habr::DB->instance()->{DB};
+    my $dbh = Local::Habr::DB->get();
     my $sth = $dbh->prepare(
         'SELECT name, karma, users.rating FROM commenters JOIN users JOIN posts ' .
         'ON commenters.post = posts.id AND posts.author = users.name and users.name = commenters.author'

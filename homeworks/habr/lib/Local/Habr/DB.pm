@@ -27,4 +27,6 @@ sub instance {
     return $self;
 }
 
+sub get { $_[0]->instance()->{DB}; }
+
 1;

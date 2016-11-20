@@ -41,7 +41,7 @@ sub user_by_name {
         rating => $user->{rating},
         karma => $user->{karma}
     };
-    return Local::Habr::FormatFactory->new(format => $format)->process($obj);
+    return Local::Habr::FormatFactory->new($format)->process($obj);
 }
 
 sub user_by_post {
@@ -58,7 +58,7 @@ sub user_by_post {
         rating => $user->{rating},
         karma => $user->{karma}
     };
-    return Local::Habr::FormatFactory->new(format => $format)->process($obj);
+    return Local::Habr::FormatFactory->new($format)->process($obj);
 }
 
 sub commenters_by_post {
@@ -70,7 +70,7 @@ sub commenters_by_post {
                    map  {{ name => $_->{name}, karma => $_->{karma}, rating => $_->{rating} }}
                    @{Local::Habr::User->get_commenters($post, $refresh)}
                ];
-    return Local::Habr::FormatFactory->new(format => $format)->process($commenters);
+    return Local::Habr::FormatFactory->new($format)->process($commenters);
 }
 
 sub post_by_id {
@@ -90,7 +90,7 @@ sub post_by_id {
         views  => $post->{views},
         stars  => $post->{stars}
     };
-    return Local::Habr::FormatFactory->new(format => $format)->process($obj);
+    return Local::Habr::FormatFactory->new($format)->process($obj);
 }
 
 sub self_commentors {
@@ -100,7 +100,7 @@ sub self_commentors {
                    map  {{ name => $_->{name}, karma => $_->{karma}, rating => $_->{rating} }}
                    @{Local::Habr::User->get_selfers()}
                ];
-    return Local::Habr::FormatFactory->new(format => $format)->process($commenters);
+    return Local::Habr::FormatFactory->new($format)->process($commenters);
 }
 
 sub desert_posts {
@@ -117,7 +117,7 @@ sub desert_posts {
                    }}
                    @{Local::Habr::Post->desert($n)}
                ];
-    return Local::Habr::FormatFactory->new(format => $format)->process($commenters);
+    return Local::Habr::FormatFactory->new($format)->process($commenters);
 }
 
 

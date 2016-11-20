@@ -28,7 +28,7 @@ sub get {
     if ($commenters_refresh) {
         Local::Habr::Commenter->get_by_post($id, $refresh, "");
     }
-    my $dbh = Local::Habr::DB->instance()->{DB};
+    my $dbh = Local::Habr::DB->get();
     my $sth = $dbh->prepare(
         'SELECT * FROM posts WHERE id = ?'
     );
@@ -106,7 +106,7 @@ sub get {
 sub desert {
     my $pkg = shift;
     my $num = shift;
-    my $dbh = Local::Habr::DB->instance()->{DB};
+    my $dbh = Local::Habr::DB->get();
     my $sth = $dbh->prepare(
         'SELECT author, topic, rating, views, stars' .
         ' FROM posts p WHERE (SELECT COUNT(*) FROM commenters WHERE (post = p.id)) > ?'

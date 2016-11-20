@@ -25,4 +25,6 @@ sub _new_instance {
     return $self;
 }
 
+sub get { $_[0]->instance()->{memd}; }
+
 1;

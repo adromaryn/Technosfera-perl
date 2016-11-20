@@ -19,7 +19,7 @@ sub get_by_post {
     my $post = shift;
     my $refresh = shift;
     my $post_refresh = shift;
-    my $dbh = Local::Habr::DB->instance()->{DB};
+    my $dbh = Local::Habr::DB->get();
     my $sth = $dbh->prepare(
         'SELECT * FROM commenters WHERE post = ?'
     );
