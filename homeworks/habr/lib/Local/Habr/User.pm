@@ -23,7 +23,7 @@ sub get_by_name {
     my $name = shift;
     my $refresh = shift;
     my $dbh = Local::Habr::DB->get();
-    my $memd = Local::Habr::Cache->instance()->{memd};
+    my $memd = Local::Habr::Cache->get();
     if ($memd and my $val = $memd->get($name) and not $refresh) {
         my $user = decode_json $val;
         return $pkg->new(
