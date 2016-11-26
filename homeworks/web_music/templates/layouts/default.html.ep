@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head><title><%= title %></title></head>
+  <body>
+    <header>
+      % if ($logined) {
+        %= form_for  '/logout'  => (method => 'POST') => begin
+          %= submit_button 'Logout'
+        %= end
+      % }
+    </header>
+    % if (my $error = flash 'error') {
+      <div id="error"><%= $error %></div>
+    % }
+    <%= content %>
+  </body>
+</html>

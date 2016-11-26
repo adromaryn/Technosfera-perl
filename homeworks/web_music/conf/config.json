@@ -1,0 +1,24 @@
+{
+    "db" : [
+        "DBI:mysql:database=musiclb;host=localhost:3151426",
+        "username",
+        "password",
+        {
+            "mysql_enable_utf8": 1,
+            "AutoCommit": 0
+        }
+    ],
+    "memd" : {
+        "servers" : [
+            {
+                "address" : "localhost:11211"
+            }
+        ],
+        "namespace" : "musiclb:"
+    },
+    "secret" : {
+      "cost"         : 10,
+      "salt"         : "dajkd#1asknka2sd",
+      "session_salt" : "awsdfghj$khg:tr^dsdfghj"
+    }
+}

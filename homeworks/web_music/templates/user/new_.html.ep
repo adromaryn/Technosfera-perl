@@ -1,0 +1,14 @@
+% layout 'default';
+% title 'MusicLib';
+
+%= form_for '/users' =>(method=>'POST') => begin
+  %= csrf_field
+  %= text_field "name", id => "name", placeholder => "Your name"
+  <br />
+  %= password_field "password", id => "password", placeholder => "Password"
+  <br />
+  %= password_field "repeat", id => "repeat", placeholder => "Repeat your password"
+  <br />
+  %= submit_button "Sign Up Now!", id => "submit"
+%= end
+%= link_to 'Log In' => '/login'
