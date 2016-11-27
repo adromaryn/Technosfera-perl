@@ -1,17 +1,69 @@
 <!DOCTYPE html>
 <html>
-  <head><title><%= title %></title></head>
+  <head>
+    <title><%= title %></title>
+    %= stylesheet '/bootstrap.min.css'
+    %= stylesheet '/app.css'
+    %= javascript '/jquery.min.js'
+    %= javascript '/tether.min.js'
+    %= javascript '/bootstrap.min.js'
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
   <body>
     <header>
-      % if ($logined) {
-        %= form_for  '/logout'  => (method => 'POST') => begin
-          %= submit_button 'Logout'
-        %= end
-      % }
+      <nav class="navbar navbar-dark bg-inverse">
+        <a class="navbar-brand" href="/">Music Library</a>
+        <div class="nav navbar-nav float-xs-right">
+          % if ($logined) {
+            %= form_for  '/logout'  => (method => 'POST') => (class => "form-inline float-xs-right") => begin
+              %= submit_button 'Logout', class => "btn btn-outline-info"
+            %= end
+            %= form_for  '/users/delete'  => (method => 'POST') => (class => "form-inline float-xs-right") => begin
+              %= submit_button 'Delete Account', class => "btn btn-outline-danger"
+            %= end
+          % } else {
+            %= form_for  '/users/new'  => (method => 'GET') => (class => "form-inline float-xs-right") => begin
+              %= submit_button 'Registration', class => "btn btn-outline-success"
+            %= end
+            %= form_for  '/login'  => (method => 'GET') => (class => "form-inline float-xs-right") => begin
+              %= submit_button 'Login', class => "btn btn-outline-info"
+            %= end
+          % }
+        </div>
+      </nav>
     </header>
-    % if (my $error = flash 'error') {
-      <div id="error"><%= $error %></div>
-    % }
-    <%= content %>
+    <main class="container">
+      <div class="row">
+        <div class="col-md-2 col-xs-4">
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-8 col-xs-4">
+          % if (my $error = flash 'error') {
+            <div id="error" class="alert alert-danger"><%= $error %></div>
+          % }
+        </div>
+        <div class="col-md-2 col-xs-4">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-2 col-xs-4">
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-8 col-xs-4">
+          % if (my $success = flash 'success') {
+            <div id="success" class="alert alert-success"><%= $success %></div>
+          % }
+        </div>
+        <div class="col-md-2 col-xs-4">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-2 col-xs-4">
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-8 col-xs-4">
+          <%= content %>
+        </div>
+        <div class="col-md-2 col-xs-4">
+        </div>
+      </div>
+    </main>
   </body>
 </html>

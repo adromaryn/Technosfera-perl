@@ -1,3 +1,4 @@
 % layout 'default';
 % title $name;
 <h1><%=$name%></h1>
+%= link_to 'Show all users' => '/users'

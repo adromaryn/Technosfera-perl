@@ -18,7 +18,7 @@ sub create {
   my $dbh = MusicLib::DB->get();
   my $sth = $dbh->prepare('INSERT INTO users (name, hash) VALUES (?, ?)');
   $sth->execute($name, $hash);
-  if ( $sth->err ) {
+  if ($sth->err) {
     return $sth->err;
   } else {
     $dbh->commit;
@@ -37,6 +37,32 @@ sub read {
     return MusicLib::Model::User->new($user);
   } else {
     return undef;
+  }
+}
+
+sub delete {
+  my $pkg = shift;
+  my $name = shift;
+  my $dbh = MusicLib::DB->get();
+  my $sth = $dbh->prepare('DELETE FROM users WHERE name = ?');
+  $sth->execute($name);
+  if ($sth->err) {
+    return $sth->err;
+  } else {
+    return undef;
+  }
+}
+
+sub all {
+  my $pkg = shift;
+  my $dbh = MusicLib::DB->get();
+  my $sth = $dbh->prepare('SELECT * FROM users');
+  $sth->execute();
+  my $users = $sth->fetchall_arrayref({});
+  if ($sth->err) {
+    return undef;
+  } else {
+    return $users;
   }
 }
 

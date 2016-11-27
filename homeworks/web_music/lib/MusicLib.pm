@@ -37,6 +37,8 @@ sub startup {
 
   $auth->get('/users/name/:name')->to('user#show');
   $auth->get('/')->to('user#me');
+  $auth->get('/users')->to('user#index');
+  $auth->post('/users/delete')->to('user#destroy');
 }
 
 1;

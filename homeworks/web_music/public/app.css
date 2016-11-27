@@ -1,0 +1,8 @@
+.btn {
+  margin-right: 10px;
+}
+
+.list-group-item a{
+  display: block;
+  text-decoration: none;
+}

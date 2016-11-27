@@ -1,0 +1,11 @@
+% layout 'default';
+% title 'MusicLib';
+
+<h1>Users</h1>
+<ul class="list-group">
+% for my $name (@$names) {
+  <li class="list-group-item list-group-item-action">
+    %= link_to $name, "/users/name/$name"
+  </li>
+% }
+</ul>

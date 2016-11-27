@@ -11,11 +11,11 @@ use MusicLib::Secret;
 use MusicLib::Model::User;
 use MusicLib::Cache;
 use Digest::MD5;
+use Session::Token;
 use MusicLib::Helper::CurrentUser 'current_user';
 
 sub new_ {
   my $self = shift;
-
   $self->render(logined => '');
 }
 
@@ -30,7 +30,7 @@ sub create {
     $self->flash({error => 'Bad CSRF token!'});
     $self->redirect_to("/login", status => 403);
   } elsif ($name !~ /^[a-z1-9_]+$/) {
-    $self->flash({error => 'Name should include only lowercase latin characters, nums and _ and be non-empty'});
+    $self->flash({error => 'Name should contain only lowercase latin characters, nums and _ and be non-empty'});
     $self->redirect_to('/users/new', status => 400);
   } elsif(length $password < 6) {
     $self->flash({error => 'Minimal pass length is 6 characters'});
@@ -48,6 +48,8 @@ sub create {
     my $digest = $bcrypt->b64digest;
     my $result = MusicLib::Model::User->create($name, $digest);
     if (not defined $result) {
+      `rm -rf ./public/$name`;
+      mkdir "public/$name";
       my $session_salt = my $salt = MusicLib::Secret->session_salt();
       my $token = Session::Token->new(length => 120)->get . Digest::MD5->new->add($name)->b64digest . $name;
       my $memd = MusicLib::Cache->get();
@@ -74,7 +76,7 @@ sub show {
     if ($current_user eq $name) {
       my $token = $self->session('token')||'';
       MusicLib::Cache->get()->delete($token);
-      $self->redirect_to('/', status => 401)
+      $self->redirect_to('/', status => 401);
     } else {
       $self->redirect_to('/', status => 404);
     }
@@ -90,6 +92,29 @@ sub me {
     $self->redirect_to("/users/name/$user");
   } else {
     redirect_to('/login', status => 401)
+  }
+}
+
+sub index {
+  my $self = shift;
+  my $users = MusicLib::Model::User->all;
+  if (not defined $users) {
+    $self->redirect_to('/', status => 500);
+  } else {
+    my $names = [map { $_->{name}} @$users];
+    $self->render(names => $names, logined => 1);
+  }
+}
+
+sub destroy {
+  my $self = shift;
+  my $user = current_user($self);
+  my $err = MusicLib::Model::User->delete($user);
+  if ($err) {
+    $self->redirect_to("/");
+  } else {
+    `rm -rf ./public/$user`;
+    $self->redirect_to("/login");
   }
 }
 

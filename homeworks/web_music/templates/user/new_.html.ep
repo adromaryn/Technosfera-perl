@@ -2,13 +2,18 @@
 % title 'MusicLib';
 
 %= form_for '/users' =>(method=>'POST') => begin
+  <h1>Join us!</h1>
   %= csrf_field
-  %= text_field "name", id => "name", placeholder => "Your name"
+  %= text_field "name", id => "name", class=>"form-control", placeholder => "Your name"
+  <p class="form-text text-muted">
+    Your name can contain lowercase latin letters, numbers and _.
+  </p>
+  %= password_field "password", id => "password", class=>"form-control", placeholder => "Password"
+  <p id="passwordHelpBlock" class="form-text text-muted">
+    Your password must be more then 5 characters long.
+  </p>
+  %= password_field "repeat", id => "repeat", class=>"form-control", placeholder => "Repeat your password"
   <br />
-  %= password_field "password", id => "password", placeholder => "Password"
-  <br />
-  %= password_field "repeat", id => "repeat", placeholder => "Repeat your password"
-  <br />
-  %= submit_button "Sign Up Now!", id => "submit"
+  %= submit_button "Sign Up Now!", id => "submit", class => "btn btn-primary"
 %= end
 %= link_to 'Log In' => '/login'
