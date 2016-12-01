@@ -25,12 +25,10 @@ sub async {
 	my $cr = shift;
 	$counter++;
 	say "$counter страниц в обработке, " . keys(%hash) . " всего запрошено; start";
-	$cv->begin;
 	my $w; $w = http_get $link, sub {
 		undef $w;
 		my ($html) = @_;
 		$cb->($link, $html, $cr+1);
-		$cv->end;
 		say "$counter страниц в обработке, " . keys(%hash) . " всего запрошено; exit";
 		$counter--;
 	};
