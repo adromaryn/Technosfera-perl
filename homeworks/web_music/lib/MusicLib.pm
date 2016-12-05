@@ -39,6 +39,9 @@ sub startup {
   $auth->get('/')->to('user#me');
   $auth->get('/users')->to('user#index');
   $auth->post('/users/delete')->to('user#destroy');
+
+  $auth->get('/albums/new')->to('album#new_');
+  $auth->post('/albums')->to('album#create');
 }
 
 1;

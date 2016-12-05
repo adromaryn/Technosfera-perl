@@ -2,3 +2,11 @@
 % title $name;
 <h1><%=$name%></h1>
 %= link_to 'Show all users' => '/users'
+<h2>Albums</h2>
+<ul class="list-group">
+% for my $album (@$albums) {
+  <li class="list-group-item list-group-item-action">
+    %= link_to $album->{title}, "#"
+  </li>
+% }
+</ul>

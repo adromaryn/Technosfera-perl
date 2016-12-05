@@ -9,6 +9,7 @@ use feature ':5.10';
 use Digest;
 use MusicLib::Secret;
 use MusicLib::Model::User;
+use MusicLib::Model::Album;
 use MusicLib::Cache;
 use Digest::MD5;
 use Session::Token;
@@ -77,11 +78,12 @@ sub show {
       my $token = $self->session('token')||'';
       MusicLib::Cache->get()->delete($token);
       $self->redirect_to('/', status => 401);
-    } else {
+    } else {;
       $self->redirect_to('/', status => 404);
     }
   } else {
-    $self->render(name => $user->{name}, logined => 1);
+    my $albums = MusicLib::Model::Album->all($name);
+    $self->render(name => $user->{name}, logined => 1, albums => $albums);
   }
 }
 
