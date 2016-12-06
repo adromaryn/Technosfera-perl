@@ -9,5 +9,5 @@ CREATE TABLE albums (
     title VARCHAR(255) NOT NULL,
     band VARCHAR(255) NOT NULL,
     year INT NOT NULL,
-    PRIMARY KEY (user_name, title)
+    PRIMARY KEY (user_name, title, band)
 ) DEFAULT CHARSET utf8;

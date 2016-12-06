@@ -42,6 +42,9 @@ sub startup {
 
   $auth->get('/albums/new')->to('album#new_');
   $auth->post('/albums')->to('album#create');
+  $auth->get('/albums/id:id')->to('album#show');
+  $auth->get('/albums/id:id/edit')->to('album#edit');
+  $auth->post('/albums/id:id/edit')->to('album#update');
 }
 
 1;

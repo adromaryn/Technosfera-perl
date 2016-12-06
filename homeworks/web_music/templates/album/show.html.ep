@@ -1,0 +1,35 @@
+% layout 'default';
+% title $album->{title};
+
+<table class="table table-inverse table-bordered">
+  <thead>
+    <tr>
+      <th>
+        Title
+      </th>
+      <th>
+        Band
+      </th>
+      <th>
+        Year
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        %= $album->{title}
+      </td>
+      <td>
+        %= $album->{band}
+      </td>
+      <td>
+        %= $album->{year}
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+% if ($owner) {
+  %= link_to 'Edit', '/albums/id' . $album->{id} . '/edit', class => "btn btn-primary";
+% }

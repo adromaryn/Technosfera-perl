@@ -51,6 +51,8 @@ sub delete {
     $dbh->rollback;
     return $err;
   } else {
+    my $sth2 = $dbh->prepare('DELETE FROM albums WHERE user_name = ?');
+    $sth2->execute($name);
     $dbh->commit;
     return undef;
   }

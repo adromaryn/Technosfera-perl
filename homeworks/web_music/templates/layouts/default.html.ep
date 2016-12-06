@@ -15,6 +15,13 @@
         <a class="navbar-brand" href="/">Music Library</a>
         <div class="nav navbar-nav float-xs-right">
           % if ($logined) {
+            <div class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="supportedContentDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Menu</a>
+              <div class="dropdown-menu" aria-labelledby="supportedContentDropdown">
+                %= link_to 'Show all users' => '/users' => (class => "dropdown-item")
+                %= link_to 'New album' => '/albums/new' => (class => "dropdown-item")
+              </div>
+            </div>
             %= form_for  '/logout'  => (method => 'POST') => (class => "form-inline float-xs-right") => begin
               %= submit_button 'Logout', class => "btn btn-outline-info"
             %= end

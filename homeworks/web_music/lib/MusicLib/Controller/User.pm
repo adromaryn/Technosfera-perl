@@ -78,7 +78,7 @@ sub show {
       my $token = $self->session('token')||'';
       MusicLib::Cache->get()->delete($token);
       $self->redirect_to('/', status => 401);
-    } else {;
+    } else {
       $self->redirect_to('/', status => 404);
     }
   } else {
