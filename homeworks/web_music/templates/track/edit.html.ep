@@ -1,0 +1,13 @@
+% layout 'default';
+% title 'Edit track';
+
+<h1>Edit track</h1>
+
+%= form_for "/tracks/id" . $track->{id} . '/edit' =>(method=>'POST') => begin
+  %= csrf_field
+  %= text_field "title", id => "title", class=>"form-control", placeholder => "Track title", value => $track->{title}
+  %= text_field "format", id => "format", class=>"form-control", placeholder => "File format", value => $track->{format}
+  <br />
+  %= submit_button "Edit", id => "submit", class => "btn btn-primary"
+%= end
+%= link_to 'Back', '/albums/id' . $track->{album_id};

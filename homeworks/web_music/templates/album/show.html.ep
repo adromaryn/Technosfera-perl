@@ -32,4 +32,40 @@
 
 % if ($owner) {
   %= link_to 'Edit', '/albums/id' . $album->{id} . '/edit', class => "btn btn-primary";
+  %= link_to 'Add track', '/albums/id' . $album->{id} . '/tracks/new', class => "btn btn-primary";
 % }
+<h2>Album tracks</h2>
+<table class="table table-inverse table-bordered">
+  <thead>
+    <tr>
+      <th>
+        Title
+      </th>
+      <th>
+        Format
+      </th>
+      % if ($owner){
+      <th></th>
+      % }
+    </tr>
+  </thead>
+  <tbody>
+  % for my $track (@$tracks) {
+    <tr>
+      <td>
+        %= $track->{title}
+      </td>
+      <td>
+        %= $track->{format}
+      </td>
+      % if ($owner) {
+      <td>
+        %= link_to 'Edit', '/tracks/id' . $track->{id} . '/edit', class => "btn btn-outline-info";
+        %= link_to 'Delete this track', '/tracks/id' . $track->{id} . '/delete', class => "btn btn-outline-danger";
+      </td>
+      % }
+    </tr>
+  % }
+  </tbody>
+</table>
+%= link_to 'Back', '/users/name/' . $album->{user_name};

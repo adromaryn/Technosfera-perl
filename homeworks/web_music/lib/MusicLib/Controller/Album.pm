@@ -7,7 +7,7 @@ use utf8;
 use feature ':5.10';
 
 use MusicLib::Model::Album;
-use MusicLib::Cache;
+use MusicLib::Model::Track;
 use MusicLib::Helper::CurrentUser 'current_user';
 use Digest::MD5;
 
@@ -34,7 +34,7 @@ sub create {
     if (defined $current_user) {
       my $result = MusicLib::Model::Album->create($current_user, $title, $band, $year);
       if (not defined $result) {
-        my $str = Digest::MD5->new->add($title)->b64digest;
+        my $str = Digest::MD5->new->add($title)->b64digest . Digest::MD5->new->add($band)->b64digest;
         mkdir "public/$current_user/$str";
         $self->redirect_to('/');
       } else {
@@ -52,9 +52,19 @@ sub show {
   if (not defined $album) {
     $self->redirect_to('/', status => 400);
   } elsif ($current_user eq $album->{user_name}) {
-    $self->render(album => $album, logined => 1, owner => 1);
+    my $tracks = MusicLib::Model::Track->all($id);
+    if (defined $tracks) {
+      $self->render(album => $album, logined => 1, owner => 1, tracks => $tracks);
+    } else {
+      $self->redirect_to('/');
+    }
   } else {
-    $self->render(album => $album, logined => 1, owner => '');
+    my $tracks = MusicLib::Model::Track->all($id);
+    if (defined $tracks) {
+      $self->render(album => $album, logined => 1, owner => '', tracks => $tracks);
+    } else {
+      $self->redirect_to('/');
+    }
   }
 }
 
@@ -104,8 +114,8 @@ sub update {
         if ($user eq $current_user) {
           my $result = MusicLib::Model::Album->update($id, $title, $band, $year);
           if (not defined $result) {
-            my $dir = Digest::MD5->new->add($title)->b64digest;
-            my $old = Digest::MD5->new->add($album->{title})->b64digest;
+            my $dir = Digest::MD5->new->add($title)->b64digest . Digest::MD5->new->add($band)->b64digest;
+            my $old = Digest::MD5->new->add($album->{title})->b64digest . Digest::MD5->new->add($album->{band})->b64digest;
             if (-d "public/$current_user/$old") {
               rename "public/$current_user/$old", "public/$current_user/$dir";
             } elsif (-e "public/$current_user/$old") {

@@ -45,6 +45,12 @@ sub startup {
   $auth->get('/albums/id:id')->to('album#show');
   $auth->get('/albums/id:id/edit')->to('album#edit');
   $auth->post('/albums/id:id/edit')->to('album#update');
+
+  $auth->get('/albums/id:id/tracks/new')->to('track#new_');
+  $auth->post('/albums/id:id/tracks')->to('track#create');
+  $auth->get('/tracks/id:id/edit')->to('track#edit');
+  $auth->post('/tracks/id:id/edit')->to('track#update');
+  $auth->get('/tracks/id:id/delete')->to('track#destroy');
 }
 
 1;

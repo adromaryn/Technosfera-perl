@@ -4,10 +4,18 @@ CREATE TABLE users (
 ) DEFAULT CHARSET utf8;
 
 CREATE TABLE albums (
-    id INT UNIQUE KEY AUTO_INCREMENT NOT NULL,
+    id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
     user_name VARCHAR(255) NOT NULL,
     title VARCHAR(255) NOT NULL,
     band VARCHAR(255) NOT NULL,
     year INT NOT NULL,
-    PRIMARY KEY (user_name, title, band)
+    UNIQUE KEY (user_name, title, band)
+) DEFAULT CHARSET utf8;
+
+CREATE TABLE tracks (
+    id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    album_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    format VARCHAR(8) NOT NULL,
+    UNIQUE KEY (album_id, title)
 ) DEFAULT CHARSET utf8;

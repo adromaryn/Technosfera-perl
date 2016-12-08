@@ -45,14 +45,16 @@ sub delete {
   my $pkg = shift;
   my $name = shift;
   my $dbh = MusicLib::DB->get();
-  my $sth = $dbh->prepare('DELETE FROM users WHERE name = ?');
-  $sth->execute($name);
-  if (my $err = $sth->err) {
+  my $sth1 = $dbh->prepare('DELETE FROM users WHERE name = ?');
+  my $sth2 = $dbh->prepare('DELETE FROM tracks WHERE album_id IN (SELECT id FROM albums WHERE user_name = ?)');
+  my $sth3 = $dbh->prepare('DELETE FROM albums WHERE user_name = ?');
+  $sth1->execute($name);
+  $sth2->execute($name);
+  $sth3->execute($name);
+  if (my $err = $sth1->err || $sth2->err || $sth3->err) {
     $dbh->rollback;
     return $err;
   } else {
-    my $sth2 = $dbh->prepare('DELETE FROM albums WHERE user_name = ?');
-    $sth2->execute($name);
     $dbh->commit;
     return undef;
   }
