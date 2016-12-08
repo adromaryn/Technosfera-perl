@@ -20,6 +20,7 @@
               <div class="dropdown-menu" aria-labelledby="supportedContentDropdown">
                 %= link_to 'Show all users' => '/users' => (class => "dropdown-item")
                 %= link_to 'New album' => '/albums/new' => (class => "dropdown-item")
+                %= link_to 'Table' => '/table' => (class => "dropdown-item")
               </div>
             </div>
             %= form_for  '/logout'  => (method => 'POST') => (class => "form-inline float-xs-right") => begin

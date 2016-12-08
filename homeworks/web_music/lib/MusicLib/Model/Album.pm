@@ -78,6 +78,19 @@ sub update {
   }
 }
 
-
+sub get_id {
+  my $pkg = shift;
+  my $title = shift;
+  my $band = shift;
+  my $dbh = MusicLib::DB->get();
+  my $sth = $dbh->prepare('SELECT * FROM albums WHERE title = ? AND band = ?');
+  $sth->execute($title, $band);
+  my $album = $sth->fetchrow_hashref();
+  if (defined $album) {
+    return $album->{id};
+  } else {
+    return undef;
+  }
+}
 
 1;
