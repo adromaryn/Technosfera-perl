@@ -57,6 +57,8 @@
         % my $addr = "public/". $album->{user_name} . "/$album_str/$track_str/img";
         % if (-e $addr) {
           <img src = <%= "/". $album->{user_name} . "/$album_str/$track_str/img" %> class = "icon"/>
+        % } elsif ($track->{link}) {
+          <img src = <%= $track->{link} %> class = "icon"/>
         % }
         %= $track->{title}
       </td>

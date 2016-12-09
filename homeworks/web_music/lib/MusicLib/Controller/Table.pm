@@ -55,7 +55,7 @@ sub create {
           }
         }
         if ($albums_hash{$album}->{$band} != -1) {
-          my $result = MusicLib::Model::Track->create($albums_hash{$album}->{$band}, $line->{track}, $line->{format});
+          my $result = MusicLib::Model::Track->create($albums_hash{$album}->{$band}, $line->{track}, $line->{format}, '');
           if (not defined $result) {
             my $album_str = Digest::MD5->new->add($album)->b64digest . Digest::MD5->new->add($band)->b64digest;
             my $track_str = Digest::MD5->new->add($line->{track})->b64digest;

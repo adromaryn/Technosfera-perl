@@ -8,6 +8,7 @@
   %= csrf_field
   %= text_field "title", id => "title", class=>"form-control", placeholder => "Track title"
   %= text_field "format", id => "format", class=>"form-control", placeholder => "File format"
+  %= text_field "link", id => "link", class=>"form-control", placeholder => "Link to image"
   <br />
   %= submit_button "Add", id => "submit", class => "btn btn-primary"
 %= end

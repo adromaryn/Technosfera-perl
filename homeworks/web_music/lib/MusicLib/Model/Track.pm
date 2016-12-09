@@ -12,15 +12,17 @@ has id           => (is => 'ro', isa => 'Int', required => 1);
 has album_id     => (is => 'ro', isa => 'Int', required => 1);
 has title        => (is => 'ro', isa => 'Str', required => 1);
 has format       => (is => 'ro', isa => 'Str', required => 1);
+has link         => (is => 'ro', isa => 'Str', required => 1);
 
 sub create {
   my $pkg = shift;
   my $album_id = shift;
   my $title = shift;
   my $format = shift;
+  my $link = shift;
   my $dbh = MusicLib::DB->get();
-  my $sth = $dbh->prepare('INSERT INTO tracks (album_id, title, format) VALUES (?, ?, ?)');
-  $sth->execute($album_id, $title, $format);
+  my $sth = $dbh->prepare('INSERT INTO tracks (album_id, title, format, link) VALUES (?, ?, ?, ?)');
+  $sth->execute($album_id, $title, $format, $link);
   if (my $err = $sth->err) {
     $dbh->rollback;
     return  $err;
@@ -63,9 +65,10 @@ sub update {
   my $id = shift;
   my $title = shift;
   my $format = shift;
+  my $link = shift;
   my $dbh = MusicLib::DB->get();
-  my $sth = $dbh->prepare('UPDATE tracks SET title = ?, format = ? WHERE id = ?');
-  $sth->execute($title, $format, $id);
+  my $sth = $dbh->prepare('UPDATE tracks SET title = ?, format = ?, link = ? WHERE id = ?');
+  $sth->execute($title, $format, $link, $id);
   if (my $err = $sth->err) {
     $dbh->rollback;
     return  $err;

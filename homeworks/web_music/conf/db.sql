@@ -17,5 +17,6 @@ CREATE TABLE tracks (
     album_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
     format VARCHAR(8) NOT NULL,
+    link VARCHAR(255) NOT NULL,
     UNIQUE KEY (album_id, title)
 ) DEFAULT CHARSET utf8;
