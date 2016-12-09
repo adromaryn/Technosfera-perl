@@ -10,4 +10,8 @@
   <br />
   %= submit_button "Edit", id => "submit", class => "btn btn-primary"
 %= end
+%= link_to 'Add/change image', "/tracks/id" . $track->{id} . '/image';
+|
+%= link_to 'Delete image', "/tracks/id" . $track->{id} . '/image/delete';
+<br />
 %= link_to 'Back', '/albums/id' . $track->{album_id};

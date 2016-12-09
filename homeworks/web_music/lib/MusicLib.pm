@@ -51,6 +51,9 @@ sub startup {
   $auth->get('/tracks/id:id/edit')->to('track#edit');
   $auth->post('/tracks/id:id/edit')->to('track#update');
   $auth->get('/tracks/id:id/delete')->to('track#destroy');
+  $auth->get('/tracks/id:id/image')->to('track#add_image');
+  $auth->post('/tracks/id:id/image')->to('track#post_image');
+  $auth->get('/tracks/id:id/image/delete')->to('track#delete_image');
 
   $auth->get('/table')->to('table#new_');
   $auth->post('/table')->to('table#create');

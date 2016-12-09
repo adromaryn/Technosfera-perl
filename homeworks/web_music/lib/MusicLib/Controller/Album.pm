@@ -54,14 +54,16 @@ sub show {
   } elsif ($current_user eq $album->{user_name}) {
     my $tracks = MusicLib::Model::Track->all($id);
     if (defined $tracks) {
-      $self->render(album => $album, logined => 1, owner => 1, tracks => $tracks);
+      my $album_str = Digest::MD5->new->add($album->{title})->b64digest . Digest::MD5->new->add($album->{band})->b64digest;
+      $self->render(album => $album, logined => 1, owner => 1, tracks => $tracks, album_str => $album_str);
     } else {
       $self->redirect_to('/');
     }
   } else {
     my $tracks = MusicLib::Model::Track->all($id);
     if (defined $tracks) {
-      $self->render(album => $album, logined => 1, owner => '', tracks => $tracks);
+      my $album_str = Digest::MD5->new->add($album->{title})->b64digest . Digest::MD5->new->add($album->{band})->b64digest;
+      $self->render(album => $album, logined => 1, owner => '', tracks => $tracks, album_str => $album_str);
     } else {
       $self->redirect_to('/');
     }

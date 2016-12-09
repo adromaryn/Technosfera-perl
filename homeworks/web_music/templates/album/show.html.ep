@@ -53,6 +53,11 @@
   % for my $track (@$tracks) {
     <tr>
       <td>
+        % my $track_str = Digest::MD5->new->add($track->{title})->b64digest;
+        % my $addr = "public/". $album->{user_name} . "/$album_str/$track_str/img";
+        % if (-e $addr) {
+          <img src = <%= "/". $album->{user_name} . "/$album_str/$track_str/img" %> class = "icon"/>
+        % }
         %= $track->{title}
       </td>
       <td>

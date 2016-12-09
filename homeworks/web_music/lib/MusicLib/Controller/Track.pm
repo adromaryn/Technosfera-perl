@@ -10,6 +10,7 @@ use MusicLib::Model::Album;
 use MusicLib::Model::Track;
 use MusicLib::Helper::CurrentUser 'current_user';
 use Digest::MD5;
+use Mojo::Upload;
 
 sub new_ {
   my $self = shift;
@@ -188,6 +189,104 @@ sub destroy {
     }
   } else {
     $self->flash({error => 'Not authenticated'});
+    $self->redirect_to("/login", status => 401);
+  }
+}
+
+sub add_image {
+  my $self = shift;
+  my $id = $self->param('id');
+  my $current_user = current_user($self);
+  if (defined $current_user) {
+    my $track = MusicLib::Model::Track->read($id);
+    if (defined $track) {
+      my $album = MusicLib::Model::Album->read($track->{album_id});
+      if (not defined $album) {
+        $self->redirect_to("/", status => 500);
+      } elsif ($album->{user_name} eq $current_user) {
+        $self->render(id => $id, logined => 1);
+      } else {
+        $self->flash({error => 'Permissions denied'});
+        $self->redirect_to("/albums/id$id", status => 403);
+      }
+    } else {
+      $self->redirect_to("/", status => 400);
+    }
+  } else {
+    $self->flash({error => 'Not authenticated'});
+    $self->redirect_to("/login", status => 401);
+  }
+}
+
+sub post_image {
+  my $self = shift;
+  my $id = $self->param('id');
+  my $image = $self->req->upload('image');
+
+  my $validation = $self->validation;
+  if ($validation->csrf_protect->has_error('csrf_token')) {
+    $self->flash({error => 'Bad CSRF token!'});
+    $self->redirect_to("/login", status => 403);
+  } else {
+    my $current_user = current_user($self);
+    if (defined $current_user) {
+      my $track = MusicLib::Model::Track->read($id);
+      if (defined $track) {
+        my $album_id = $track->{album_id};
+        my $album = MusicLib::Model::Album->read($album_id);
+        if (not defined $album) {
+          $self->redirect_to("/", status => 500);
+        } elsif ($album->{user_name} eq $current_user) {
+          if ($image->filename =~ /(jpg)|(png)$/) {
+            my $album_str = Digest::MD5->new->add($album->{title})->b64digest . Digest::MD5->new->add($album->{band})->b64digest;
+            my $track_str = Digest::MD5->new->add($track->{title})->b64digest;
+            `rm -rf "public/$current_user/$album_str/$track_str/img"`;
+            $image->move_to("public/$current_user/$album_str/$track_str/img");
+            $self->redirect_to("/albums/id$album_id", status=>200);
+          } else {
+            $self->flash({error => 'Only jpg or bmp images'});
+            $self->redirect_to("/tracks/id$id/image", status => 400);
+          }
+        } else {
+          $self->flash({error => 'Permissions denied'});
+          $self->redirect_to("/albums/id$id", status => 403);
+        }
+      } else {
+        $self->redirect_to("/", status => 400);
+      }
+    } else {
+      $self->flash({error => 'Permissions denied'});
+      $self->redirect_to("/login", status => 401);
+    }
+  }
+}
+
+sub delete_image {
+  my $self = shift;
+  my $id = $self->param('id');
+
+  my $current_user = current_user($self);
+  if (defined $current_user) {
+    my $track = MusicLib::Model::Track->read($id);
+    if (defined $track) {
+      my $album_id = $track->{album_id};
+      my $album = MusicLib::Model::Album->read($album_id);
+      if (not defined $album) {
+        $self->redirect_to("/", status => 500);
+      } elsif ($album->{user_name} eq $current_user) {
+        my $album_str = Digest::MD5->new->add($album->{title})->b64digest . Digest::MD5->new->add($album->{band})->b64digest;
+        my $track_str = Digest::MD5->new->add($track->{title})->b64digest;
+        `rm -rf "public/$current_user/$album_str/$track_str/img"`;
+        $self->redirect_to("/albums/id$album_id", status=>200);
+      } else {
+        $self->flash({error => 'Permissions denied'});
+        $self->redirect_to("/albums/id$id", status => 403);
+      }
+    } else {
+        $self->redirect_to("/", status => 400);
+    }
+  } else {
+    $self->flash({error => 'Permissions denied'});
     $self->redirect_to("/login", status => 401);
   }
 }
