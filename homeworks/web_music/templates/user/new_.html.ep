@@ -3,7 +3,6 @@
 
 %= form_for '/users' =>(method=>'POST') => begin
   <h1>Join us!</h1>
-  %= csrf_field
   %= text_field "name", id => "name", class=>"form-control", placeholder => "Your name"
   <p class="form-text text-muted">
     Your name can contain lowercase latin letters, numbers and _.

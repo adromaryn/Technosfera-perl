@@ -8,32 +8,44 @@ use feature ':5.10';
 
 use MusicLib::Cache;
 use MusicLib::Helper::CurrentUser;
+use DDP;
 
 # This method will run once at server start
 sub startup {
   my $self = shift;
 
+  $self->plugin('CSRFProtect');
+
   # Router
   my $r = $self->routes;
-
-  $r->get('/users/new')->to('user#new_');
-  $r->post('/users')->to('user#create');
-
-  $r->get('/login')->to('session#new_');
-  $r->post('/login')->to('session#create');
-  $r->post('/logout')->to('session#destroy');
 
   # Authenticate based on name parameter
   my $auth = $r->under( sub {
     my $c = shift;
     my $name = current_user($c);
+    $c->stash(logged => 1);
     # Authenticated
     return 1 if defined $name;
 
     # Not authenticated
-    $c->redirect_to('/login');
+
+    $c->flash({error => 'Not authenticated'});
+    $c->redirect_to("/login", status => 401);
     return undef;
   });
+
+  my $unlogged = $r->under( sub {
+    my $c = shift;
+    $c->stash(logged => '');
+    return 1;
+  });
+
+  $unlogged->get('/users/new')->to('user#new_');
+  $unlogged->post('/users')->to('user#create');
+
+  $unlogged->get('/login')->to('session#new_');
+  $unlogged->post('/login')->to('session#create');
+  $unlogged->post('/logout')->to('session#destroy');
 
   $auth->get('/users/name/:name')->to('user#show');
   $auth->get('/')->to('user#me');

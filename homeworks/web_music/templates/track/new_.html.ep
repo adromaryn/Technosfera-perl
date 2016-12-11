@@ -5,7 +5,6 @@
 
 %= form_for '/albums/id' . $album->{id} . '/tracks' =>(method=>'POST') => begin
   <h3>Add new track to album</h3>
-  %= csrf_field
   %= text_field "title", id => "title", class=>"form-control", placeholder => "Track title"
   %= text_field "format", id => "format", class=>"form-control", placeholder => "File format"
   %= text_field "link", id => "link", class=>"form-control", placeholder => "Link to image"

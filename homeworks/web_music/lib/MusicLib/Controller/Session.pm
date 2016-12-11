@@ -25,34 +25,27 @@ sub create {
   my $name = $self->param('name');
   my $password = $self->param('password');
 
-  my $validation = $self->validation;
-  if ($validation->csrf_protect->has_error('csrf_token')) {
-    $self->flash({error => 'Bad CSRF token!'});
-    $self->redirect_to("/login", status => 403);
+  my $cost = MusicLib::Secret->cost();
+  my $salt = MusicLib::Secret->salt();
+  my $bcrypt = Digest->new('Bcrypt');
+  $bcrypt->cost($cost);
+  $bcrypt->salt($salt);
+  $bcrypt->add($password);
+  my $digest = $bcrypt->b64digest;
+
+  my $user = MusicLib::Model::User->read($name);
+
+  if (defined $user and $user->{hash} eq $digest) {
+    my $session_salt = my $salt = MusicLib::Secret->session_salt();
+    my $token = Session::Token->new(length => 120)->get . Digest::MD5->new->add($name)->b64digest . $name;
+    my $memd = MusicLib::Cache->get();
+    $memd->set($token, $user->{name});
+    $self->session(expiration => 3600*24*10);
+    $self->session({token => $token});
+    $self->redirect_to("/");
   } else {
-
-    my $cost = MusicLib::Secret->cost();
-    my $salt = MusicLib::Secret->salt();
-    my $bcrypt = Digest->new('Bcrypt');
-    $bcrypt->cost($cost);
-    $bcrypt->salt($salt);
-    $bcrypt->add($password);
-    my $digest = $bcrypt->b64digest;
-
-    my $user = MusicLib::Model::User->read($name);
-
-    if (defined $user and $user->{hash} eq $digest) {
-      my $session_salt = my $salt = MusicLib::Secret->session_salt();
-      my $token = Session::Token->new(length => 120)->get . Digest::MD5->new->add($name)->b64digest . $name;
-      my $memd = MusicLib::Cache->get();
-      $memd->set($token, $user->{name});
-      $self->session(expiration => 3600*24*10);
-      $self->session({token => $token});
-      $self->redirect_to("/");
-    } else {
-      $self->flash({error => 'Wrong pass or name'});
-      $self->redirect_to("/login", status => 400);
-    }
+    $self->flash({error => 'Wrong pass or name'});
+    $self->redirect_to("/login", status => 400);
   }
 }
 

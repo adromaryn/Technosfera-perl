@@ -4,7 +4,6 @@
 <h1>Add image</h1>
 
 %= form_for "/tracks/id" . $id . '/image' =>(method=>'POST') => (enctype=>"multipart/form-data")=> begin
-  %= csrf_field
   %= file_field "image", id => "image"
   <br /><br />
   %= submit_button "Upload", id => "submit", class => "btn btn-primary"

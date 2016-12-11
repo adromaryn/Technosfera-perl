@@ -2,11 +2,10 @@
 % title 'Edit your album';
 
 %= form_for '/albums/id' . $album->{id} . '/edit' =>(method=>'POST') => begin
-  <h1>Add your album here</h1>
-  %= csrf_field
+  <h1>Edit album</h1>
   %= text_field "title", id => "title", class=>"form-control", placeholder => "Album title", value => $album->{title}
   %= text_field "band", id => "band", class=>"form-control", placeholder => "Band", value => $album->{band}
   %= text_field "year", id => "year", class=>"form-control", placeholder => "Album year, 4 digits", value => $album->{year}
   <br />
-  %= submit_button "Create album", id => "submit", class => "btn btn-primary"
+  %= submit_button "Edit", id => "submit", class => "btn btn-primary"
 %= end

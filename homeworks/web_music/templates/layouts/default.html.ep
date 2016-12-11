@@ -14,7 +14,7 @@
       <nav class="navbar navbar-dark bg-inverse">
         <a class="navbar-brand" href="/">Music Library</a>
         <div class="nav navbar-nav float-xs-right">
-          % if ($logined) {
+          % if ($logged) {
             <div class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="supportedContentDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Menu</a>
               <div class="dropdown-menu" aria-labelledby="supportedContentDropdown">

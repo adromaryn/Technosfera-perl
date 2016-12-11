@@ -3,7 +3,6 @@
 
 %= form_for '/albums' =>(method=>'POST') => begin
   <h1>Add your album here</h1>
-  %= csrf_field
   %= text_field "title", id => "title", class=>"form-control", placeholder => "Album title"
   %= text_field "band", id => "band", class=>"form-control", placeholder => "Band"
   %= text_field "year", id => "year", class=>"form-control", placeholder => "Album year, 4 digits"

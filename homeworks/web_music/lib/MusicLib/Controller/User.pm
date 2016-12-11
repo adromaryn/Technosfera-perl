@@ -93,7 +93,7 @@ sub me {
   if (defined $user) {
     $self->redirect_to("/users/name/$user");
   } else {
-    redirect_to('/login', status => 401)
+    $self->redirect_to('/login', status => 401)
   }
 }
 

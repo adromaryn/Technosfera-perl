@@ -3,7 +3,6 @@
 
 %= form_for '/table' => (method=>'POST') => begin
   <h3>Add your tracks with table</h3>
-  %= csrf_field
   %= text_area 'table', id => "table", cols => 50, rows => 10
   <br />
   %= submit_button "Add", id => "submit", class => "btn btn-primary"

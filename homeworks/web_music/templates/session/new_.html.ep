@@ -2,7 +2,6 @@
 % title 'MusicLib | Login';
 %= form_for '/login' =>(method=>'POST') => begin
   <h1>Welcome again!</h1>
-  %= csrf_field
   %= text_field "name", id => "name", class=>"form-control", placeholder => "Your name"
   <br />
   %= password_field "password", id => "password", class=>"form-control", placeholder => "Password"
