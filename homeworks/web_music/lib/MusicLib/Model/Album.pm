@@ -15,14 +15,10 @@ has band       => (is => 'ro', isa => 'Str', required => 1);
 has year       => (is => 'ro', isa => 'Int', required => 1);
 
 sub create {
-  my $pkg = shift;
-  my $user = shift;
-  my $title = shift;
-  my $band = shift;
-  my $year = shift;
+  my ($pkg, %opts) = @_;
   my $dbh = MusicLib::DB->get();
   my $sth = $dbh->prepare('INSERT INTO albums (user_name, title, band, year) VALUES (?, ?, ?, ?)');
-  $sth->execute($user, $title, $band, $year);
+  $sth->execute($opts{user}, $opts{title}, $opts{band}, $opts{year});
   if (my $err = $sth->err) {
     $dbh->rollback;
     return  $err;
@@ -61,14 +57,10 @@ sub read {
 }
 
 sub update {
-  my $pkg = shift;
-  my $id = shift;
-  my $title = shift;
-  my $band = shift;
-  my $year = shift;
+  my ($pkg, %opts) = @_;
   my $dbh = MusicLib::DB->get();
   my $sth = $dbh->prepare('UPDATE albums SET title = ?, band = ?, year = ? WHERE id = ?');
-  $sth->execute($title, $band, $year, $id);
+  $sth->execute($opts{title}, $opts{band}, $opts{year}, $opts{user});
   if (my $err = $sth->err) {
     $dbh->rollback;
     return  $err;

@@ -41,7 +41,7 @@ sub create {
   my $album = MusicLib::Model::Album->read($album_id);
   my $user_name = $album->{user_name};
   if ($user_name eq $current_user) {
-    my $result = MusicLib::Model::Track->create($album_id, $title, $format, $link);
+    my $result = MusicLib::Model::Track->create(album => $album_id, title => $title, format => $format, link => $link);
     if (not defined $result) {
       my $album_str = Digest::MD5->new->add($album->{title})->b64digest . Digest::MD5->new->add($album->{band})->b64digest;
       my $track_str = Digest::MD5->new->add($title)->b64digest;
@@ -98,7 +98,10 @@ sub update {
       $self->redirect_to("/", status => 500);
     } elsif ($album->{user_name} eq $current_user) {
       my $old_track_str = Digest::MD5->new->add($track->{title})->b64digest;
-      my $result = MusicLib::Model::Track->update($id, $title, $format, $link);
+      my $result = MusicLib::Model::Track->update(id     => $id,
+                                                  title  => $title,
+                                                  format => $format,
+                                                  link   => $link);
       if (not defined $result) {
         my $album_str = Digest::MD5->new->add($album->{title})->b64digest . Digest::MD5->new->add($album->{band})->b64digest;
         my $track_str = Digest::MD5->new->add($title)->b64digest;

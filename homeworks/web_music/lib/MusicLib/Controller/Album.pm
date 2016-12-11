@@ -27,7 +27,7 @@ sub create {
     $self->redirect_to("/albums/new", status => 400);
   } else {
     my $current_user = current_user($self);
-    my $result = MusicLib::Model::Album->create($current_user, $title, $band, $year);
+    my $result = MusicLib::Model::Album->create(user => $current_user, title => $title, band => $band, year => $year);
     if (not defined $result) {
       my $str = Digest::MD5->new->add($title)->b64digest . Digest::MD5->new->add($band)->b64digest;
       mkdir "public/$current_user/$str";
@@ -91,7 +91,7 @@ sub update {
     if (defined $album) {
       my $user = $album->{user_name};
       if ($user eq $current_user) {
-        my $result = MusicLib::Model::Album->update($id, $title, $band, $year);
+        my $result = MusicLib::Model::Album->update(id => $id, title => $title, band => $band, year => $year);
         if (not defined $result) {
           my $dir = Digest::MD5->new->add($title)->b64digest . Digest::MD5->new->add($band)->b64digest;
           my $old = Digest::MD5->new->add($album->{title})->b64digest . Digest::MD5->new->add($album->{band})->b64digest;

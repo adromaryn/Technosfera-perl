@@ -27,7 +27,7 @@ sub create {
   for my $line (@$lines) {
     my ($album, $band) = ($line->{album}, $line->{band});
     if (not defined $albums_hash{$album}) {
-      my $result = MusicLib::Model::Album->create($user, $album, $band, $line->{year});
+      my $result = MusicLib::Model::Album->create(user => $user, title => $title, band => $band, year => $line->{year});
       if (not defined $result or $result == 1062) {
         my $str = Digest::MD5->new->add($album)->b64digest . Digest::MD5->new->add($band)->b64digest;
         mkdir "public/$user/$str";
@@ -35,7 +35,7 @@ sub create {
         $albums_hash{$album} = \%band_hash;
       }
     } elsif (not defined $albums_hash{$album}->{$band}) {
-      my $result = MusicLib::Model::Album->create($user, $album, $band, $line->{year});
+      my $result = MusicLib::Model::Album->create(user => $user, title => $title, band => $band, year => $line->{year});
       if (not defined $result or $result == 1062) {
         my $str = Digest::MD5->new->add($album)->b64digest . Digest::MD5->new->add($band)->b64digest;
         mkdir "public/$user/$str";
@@ -49,7 +49,10 @@ sub create {
       }
     }
     if ($albums_hash{$album}->{$band} != -1) {
-      my $result = MusicLib::Model::Track->create($albums_hash{$album}->{$band}, $line->{track}, $line->{format}, '');
+      my $result = MusicLib::Model::Track->create(album  => $albums_hash{$album}->{$band},
+                                                  title  => $line->{track},
+                                                  format => $line->{format},
+                                                  link   => '');
       if (not defined $result) {
         my $album_str = Digest::MD5->new->add($album)->b64digest . Digest::MD5->new->add($band)->b64digest;
         my $track_str = Digest::MD5->new->add($line->{track})->b64digest;
