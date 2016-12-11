@@ -36,8 +36,7 @@ sub create {
   my $user = MusicLib::Model::User->read($name);
 
   if (defined $user and $user->{hash} eq $digest) {
-    my $session_salt = my $salt = MusicLib::Secret->session_salt();
-    my $token = Session::Token->new(length => 120)->get . Digest::MD5->new->add($name)->b64digest . $name;
+    my $token = Session::Token->new(length => 120)->get;
     my $memd = MusicLib::Cache->get();
     $memd->set($token, $user->{name});
     $self->session(expiration => 3600*24*10);

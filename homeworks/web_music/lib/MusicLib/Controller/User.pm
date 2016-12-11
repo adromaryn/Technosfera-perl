@@ -26,11 +26,7 @@ sub create {
   my $password = $self->param('password');
   my $repeat = $self->param('repeat');
 
-  my $validation = $self->validation;
-  if ($validation->csrf_protect->has_error('csrf_token')) {
-    $self->flash({error => 'Bad CSRF token!'});
-    $self->redirect_to("/login", status => 403);
-  } elsif ($name !~ /^[a-z1-9_]+$/) {
+  if ($name !~ /^[a-z1-9_]+$/) {
     $self->flash({error => 'Name should contain only lowercase latin characters, nums and _ and be non-empty'});
     $self->redirect_to('/users/new', status => 400);
   } elsif(length $password < 6) {
@@ -51,8 +47,7 @@ sub create {
     if (not defined $result) {
       `rm -rf ./public/$name`;
       mkdir "public/$name";
-      my $session_salt = my $salt = MusicLib::Secret->session_salt();
-      my $token = Session::Token->new(length => 120)->get . Digest::MD5->new->add($name)->b64digest . $name;
+      my $token = Session::Token->new(length => 120)->get;
       my $memd = MusicLib::Cache->get();
       $memd->set($token, $name);
       $self->session(expiration => 3600*24*10);

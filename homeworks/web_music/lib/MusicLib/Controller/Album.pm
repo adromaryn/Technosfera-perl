@@ -45,19 +45,12 @@ sub show {
   my $current_user = current_user($self);
   if (not defined $album) {
     $self->redirect_to('/', status => 400);
-  } elsif ($current_user eq $album->{user_name}) {
-    my $tracks = MusicLib::Model::Track->all($id);
-    if (defined $tracks) {
-      my $album_str = Digest::MD5->new->add($album->{title})->b64digest . Digest::MD5->new->add($album->{band})->b64digest;
-      $self->render(album => $album, logined => 1, owner => 1, tracks => $tracks, album_str => $album_str);
-    } else {
-      $self->redirect_to('/');
-    }
   } else {
     my $tracks = MusicLib::Model::Track->all($id);
     if (defined $tracks) {
       my $album_str = Digest::MD5->new->add($album->{title})->b64digest . Digest::MD5->new->add($album->{band})->b64digest;
-      $self->render(album => $album, logined => 1, owner => '', tracks => $tracks, album_str => $album_str);
+      $self->render(album => $album, logined => 1, owner => $current_user eq $album->{user_name},
+                    tracks => $tracks, album_str => $album_str);
     } else {
       $self->redirect_to('/');
     }
@@ -88,7 +81,7 @@ sub update {
   my $title = $self->param('title');
   my $band = $self->param('band');
   my $year = $self->param('year');
-  
+
   if ($year !~ /^[\d]{4}$/) {
     $self->flash({error => 'Year: only 4 digits'});
     $self->redirect_to("/albums/id$id", status => 400);
