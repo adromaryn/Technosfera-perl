@@ -36,19 +36,25 @@ sub async {
 	my $cb = shift;
 	my $cr = shift;
 	$counter++;
-	say "$counter страниц в обработке, " . keys(%hash) . " всего запрошено; " .  (grep {$hash{$_} != 0} keys(%hash)) . " получено start";
+	say "$counter страниц в обработке, " . keys(%hash) . " всего запрошено; " .  (grep {$hash{$_} != 0} keys(%hash)) . " получено start" if $counter >= 0;
 	my $w; $w = http_get $link, sub {
 		undef $w;
 		my ($body, $hdr) = @_;
-		if ($hdr->{Status} =~ /^2/ ) {
-			$cb->($link, $body, $cr+1)
-		} else {
-			delete $hash{$link};
-		};
-		say "$counter страниц в обработке, " . keys(%hash) . " всего запрошено; " .  (grep {$hash{$_} != 0} keys(%hash)) . " получено exit";
+    if ($hdr->{Status} !~ /^2|3/) {
+      delete $hash{$link};
+    } elsif ($hdr->{Redirect}) {
+      delete $hash{$link};
+      if(URI->new($hdr->{URL})->host eq $host) {
+        $cb->($hdr->{URL}, $body, $cr+1);
+      }
+    } else {
+      $cb->($link, $body, $cr+1);
+    }
+		say "$counter страниц в обработке, " . keys(%hash) . " всего запрошено; " .  (grep {$hash{$_} != 0} keys(%hash)) . " получено exit"  if $counter >= 0;
 		$counter--;
-		if ($counter eq 0 or (grep {$hash{$_} != 0} keys(%hash)) == $NUM) {
+		if ($counter == 0 or ((grep {$hash{$_} != 0} keys(%hash)) == $NUM and $counter > 0)) {
 			$cv->end;
+      $counter = -1;
 			say_stats;
 		}
 	};
