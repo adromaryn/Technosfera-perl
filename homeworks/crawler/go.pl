@@ -13,6 +13,7 @@ my $NUM = 10000;
 #my $uri = "https://habrahabr.ru/";
 #my $uri = "http://reddit.com";
 my $uri = "http://perldoc.perl.org/";
+#my $uri = "http://httpbin.org/redirect/6";
 my $host = URI->new($uri)->host;
 my %hash = ();
 my $counter = 1;
@@ -91,8 +92,12 @@ my $next; $next = sub {
 $cv->begin;
 my $guard; $guard = http_get $uri, sub {
 	undef $guard;
-	my ($res) = @_;
-	$next->($uri, $res, 0);
+	my ($body, $hdr) = @_;
+  if ($hdr->{Redirect}) {
+    $next->($hdr->{URL}, $body, 0);
+  } elsif ($hdr->{Status} == 200) {
+    $next->($uri, $body, 0);
+  }
 	$counter--;
 	if ($counter eq 0) {
 		$cv->end;
