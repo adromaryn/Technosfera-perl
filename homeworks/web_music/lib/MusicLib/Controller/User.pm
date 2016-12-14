@@ -11,7 +11,6 @@ use MusicLib::Secret;
 use MusicLib::Model::User;
 use MusicLib::Model::Album;
 use MusicLib::Cache;
-use Digest::MD5;
 use Session::Token;
 use MusicLib::Helper::CurrentUser;
 use MusicLib::Helper::Dupl;
@@ -45,16 +44,14 @@ sub create {
     $bcrypt->add($password);
     my $digest = $bcrypt->b64digest;
     my $result = MusicLib::Model::User->create($name, $digest);
-    if (not defined $result) {
-      `rm -rf ./public/$name`;
-      mkdir "public/$name";
+    if (not defined $result->{error}) {
       my $token = Session::Token->new(length => 120)->get;
       my $memd = MusicLib::Cache->get();
       $memd->set($token, $name);
       $self->session(expiration => 3600*24*10);
       $self->session({token => $token});
       $self->redirect_to("/");
-    } elsif (is_dupl($result)) {
+    } elsif (is_dupl($result->{error})) {
       $self->flash({error => "User already exists"});
       $self->redirect_to('/users/new', status => 400);
     } else {
@@ -111,7 +108,6 @@ sub destroy {
   if ($err) {
     $self->redirect_to("/");
   } else {
-    `rm -rf ./public/$user`;
     $self->redirect_to("/login");
   }
 }

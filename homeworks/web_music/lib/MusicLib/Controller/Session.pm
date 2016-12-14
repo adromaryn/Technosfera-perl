@@ -10,7 +10,6 @@ use Digest;
 use MusicLib::Secret;
 use MusicLib::Model::User;
 use MusicLib::Cache;
-use Digest::MD5;
 use Session::Token;
 use MusicLib::Helper::CurrentUser;
 

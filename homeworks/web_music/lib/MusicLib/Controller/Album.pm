@@ -1,5 +1,6 @@
 package MusicLib::Controller::Album;
 use Mojo::Base 'Mojolicious::Controller';
+use DDP;
 
 use strict;
 use warnings;
@@ -9,7 +10,7 @@ use feature ':5.10';
 use MusicLib::Model::Album;
 use MusicLib::Model::Track;
 use MusicLib::Helper::CurrentUser;
-use Digest::MD5;
+use MusicLib::Helper::Image;
 
 sub new_ {
   my $self = shift;
@@ -28,9 +29,7 @@ sub create {
   } else {
     my $current_user = current_user($self);
     my $result = MusicLib::Model::Album->create(user => $current_user, title => $title, band => $band, year => $year);
-    if (not defined $result) {
-      my $str = Digest::MD5->new->add($title)->b64digest . Digest::MD5->new->add($band)->b64digest;
-      mkdir "public/$current_user/$str";
+    if (not defined $result->{error}) {
       $self->redirect_to('/');
     } else {
       $self->redirect_to('/albums/new');
@@ -48,9 +47,11 @@ sub show {
   } else {
     my $tracks = MusicLib::Model::Track->all($id);
     if (defined $tracks) {
-      my $album_str = Digest::MD5->new->add($album->{title})->b64digest . Digest::MD5->new->add($album->{band})->b64digest;
-      $self->render(album => $album, logined => 1, owner => $current_user eq $album->{user_name},
-                    tracks => $tracks, album_str => $album_str);
+      my %files = map {$_->{id} => track_image($_->{id})} @$tracks;
+      say $files{1};
+      $self->render(album => $album, logined => 1,
+                    owner => $current_user eq $album->{user_name},
+                    tracks => $tracks, files => \%files);
     } else {
       $self->redirect_to('/');
     }
@@ -91,18 +92,11 @@ sub update {
     if (defined $album) {
       my $user = $album->{user_name};
       if ($user eq $current_user) {
-        my $result = MusicLib::Model::Album->update(id => $id, title => $title, band => $band, year => $year);
-        if (not defined $result) {
-          my $dir = Digest::MD5->new->add($title)->b64digest . Digest::MD5->new->add($band)->b64digest;
-          my $old = Digest::MD5->new->add($album->{title})->b64digest . Digest::MD5->new->add($album->{band})->b64digest;
-          if (-d "public/$current_user/$old") {
-            rename "public/$current_user/$old", "public/$current_user/$dir";
-          } elsif (-e "public/$current_user/$old") {
-            `rm -rf ./public/$current_user/$old`;
-            mkdir "public/$current_user/$dir";
-          } else {
-            mkdir "public/$current_user/$dir";
-          }
+        my $result = MusicLib::Model::Album->update(id => $id,
+                                                    title => $title,
+                                                    band => $band,
+                                                    year => $year);
+        if (not defined $result->{error}) {
           $self->flash({success => 'Album edited'});
           $self->redirect_to("/albums/id$id", status => 200);
         } else {

@@ -10,7 +10,7 @@ use MusicLib::Model::Album;
 use MusicLib::Model::Track;
 use MusicLib::Helper::CurrentUser 'current_user';
 use MusicLib::Helper::Table;
-use Digest::MD5;
+use MusicLib::Helper::Dupl;
 
 sub new_ {
   my $self = shift;
@@ -28,17 +28,13 @@ sub create {
     my ($album, $band) = ($line->{album}, $line->{band});
     if (not defined $albums_hash{$album}) {
       my $result = MusicLib::Model::Album->create(user => $user, title => $title, band => $band, year => $line->{year});
-      if (not defined $result or $result == 1062) {
-        my $str = Digest::MD5->new->add($album)->b64digest . Digest::MD5->new->add($band)->b64digest;
-        mkdir "public/$user/$str";
+      if (not defined $result->{error} or is_dupl($result->{error})) {
         my %band_hash = ($band, -1);
         $albums_hash{$album} = \%band_hash;
       }
     } elsif (not defined $albums_hash{$album}->{$band}) {
       my $result = MusicLib::Model::Album->create(user => $user, title => $title, band => $band, year => $line->{year});
-      if (not defined $result or $result == 1062) {
-        my $str = Digest::MD5->new->add($album)->b64digest . Digest::MD5->new->add($band)->b64digest;
-        mkdir "public/$user/$str";
+      if (not defined $result->{error} or is_dupl($result->{error})) {
         $albums_hash{$album}->{$band} = -1;
       }
     }
@@ -53,10 +49,7 @@ sub create {
                                                   title  => $line->{track},
                                                   format => $line->{format},
                                                   link   => '');
-      if (not defined $result) {
-        my $album_str = Digest::MD5->new->add($album)->b64digest . Digest::MD5->new->add($band)->b64digest;
-        my $track_str = Digest::MD5->new->add($line->{track})->b64digest;
-        mkdir "public/$user/$album_str/$track_str";
+      if (not defined $result->{error}) {
         $self->flash({success => 'You add new track'});
       }
     }

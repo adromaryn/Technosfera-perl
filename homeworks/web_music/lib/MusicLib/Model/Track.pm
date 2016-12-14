@@ -7,6 +7,7 @@ use feature ':5.10';
 
 use Mouse;
 use MusicLib::DB;
+use DDP;
 
 has id           => (is => 'ro', isa => 'Int', required => 1);
 has album_id     => (is => 'ro', isa => 'Int', required => 1);
@@ -20,9 +21,9 @@ sub create {
   my $sth = $dbh->prepare('INSERT INTO tracks (album_id, title, format, link) VALUES (?, ?, ?, ?)');
   eval {$sth->execute($opts{album}, $opts{title}, $opts{format}, $opts{link});};
   if ($@) {
-    return $@->{message};
+    return {error => $@->{message}};
   } else {
-    return undef;
+    return {id => $sth->{mysql_insertid}};
   }
 }
 
@@ -60,9 +61,9 @@ sub update {
   my $sth = $dbh->prepare('UPDATE tracks SET title = ?, format = ?, link = ? WHERE id = ?');
   eval {$sth->execute($opts{title}, $opts{format}, $opts{link}, $opts{id});};
   if ($@) {
-    return $@->{message};
+    return {error => $@->{message}};
   } else {
-    return undef;
+    return {id => $sth->{mysql_insertid}};
   }
 }
 

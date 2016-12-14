@@ -20,9 +20,9 @@ sub create {
   my $sth = $dbh->prepare('INSERT INTO albums (user_name, title, band, year) VALUES (?, ?, ?, ?)');
   eval {$sth->execute($opts{user}, $opts{title}, $opts{band}, $opts{year});};
   if ($@) {
-    return $@->{message};
+    return {error => $@->{message}};
   } else {
-    return undef;
+    return {id => $sth->{mysql_insertid}};
   }
 }
 
@@ -60,9 +60,9 @@ sub update {
   my $sth = $dbh->prepare('UPDATE albums SET title = ?, band = ?, year = ? WHERE id = ?');
   eval {$sth->execute($opts{title}, $opts{band}, $opts{year}, $opts{user});};
   if ($@) {
-    return $@->{message};
+    return {error => $@->{message}};
   } else {
-    return undef;
+    return {id => $sth->{mysql_insertid}};
   }
 }
 

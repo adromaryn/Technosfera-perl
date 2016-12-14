@@ -19,9 +19,9 @@ sub create {
   my $sth = $dbh->prepare('INSERT INTO users (name, hash) VALUES (?, ?)');
   eval {$sth->execute($name, $hash);};
   if ($@) {
-    return $@->{message};
+    return {error => $@->{message}};
   } else {
-    return undef;
+    return {id => $sth->{mysql_insertid}};
   }
 }
 
