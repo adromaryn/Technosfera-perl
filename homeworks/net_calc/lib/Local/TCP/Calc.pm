@@ -2,6 +2,9 @@ package Local::TCP::Calc;
 
 use strict;
 use warnings;
+use utf8;
+use feature ':5.10';
+use Exporter 'import';
 use IO::Compress::Gzip qw(gzip $GzipError) ;
 
 sub TYPE_START_WORK {1}
@@ -37,5 +40,9 @@ sub unpack_message {
 	my $pkg = shift;
 	my $message = shift;
 }
+
+our @EXPORT = qw(TYPE_CONN_ERR TYPE_CONN_OK TYPE_START_WORK TYPE_CHECK_WORK
+                 STATUS_NEW STATUS_WORK STATUS_DONE STATUS_ERROR
+								 pack_header unpack_header pack_message unpack_message);
 
 1;

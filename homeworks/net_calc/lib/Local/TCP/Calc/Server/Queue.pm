@@ -73,13 +73,13 @@ sub get_status {
 	if (defined $struct->{$id}) {
 		# Возвращаем статус задания по id, и в случае DONE или ERROR имя файла с результатом
 		my $status = $struct->{$id}->{status};
-		if ($status == Local::TCP::Calc::STATUS_DONE or $status == Local::TCP::Calc::STATUS_ERROR) {
+		if ($status == STATUS_DONE or $status == STATUS_ERROR) {
 			return [$status, $struct->{$id}->{result}];
 		} else {
 			return [$status,''];
 		}
 	} else {
-		return ['-1','']
+		return [-1,''];
 	}
 	$self->close($struct);
 }
@@ -95,10 +95,10 @@ sub delete {
 sub get {
 	my $self = shift;
 	my $struct = $self->open(1);
-	my @keys = grep {$struct->{$_}->{status} == Local::TCP::Calc::STATUS_NEW} keys %{$struct};
+	my @keys = grep {$struct->{$_}->{status} == STATUS_NEW} keys %{$struct};
 	if (@keys) {
 		my $k = shift @keys;
-		$struct->{$k}->{status} = Local::TCP::Calc::STATUS_WORK;
+		$struct->{$k}->{status} = STATUS_WORK;
 		# Возвращаем задание, которое необходимо выполнить (id, tasks)
 		return [$k, $struct->{$k}->{task}];
 	} else {
@@ -122,7 +122,7 @@ sub add {
 
 	if (@free) {
 		my $index = shift @free;
-	 	$struct->{$index} = {task => $new_work, status => Local::TCP::Calc->STATUS_NEW() , result => '0'};
+	 	$struct->{$index} = {task => $new_work, status => STATUS_NEW() , result => '0'};
 		$self->close($struct);
 		return 1;
 	} else {
