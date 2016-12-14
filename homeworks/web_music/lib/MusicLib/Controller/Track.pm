@@ -48,7 +48,7 @@ sub create {
       mkdir "public/$current_user/$album_str/$track_str";
       $self->flash({success => 'You add new track'});
       $self->redirect_to("/albums/id$album_id", status => 200);
-    } elsif ($result == 1062) {
+    } elsif (is_dupl($result)) {
       $self->flash({error => 'Track with this title already exists in this album'});
       $self->redirect_to("/albums/id$album_id", status => 400);
     } else {
@@ -115,7 +115,7 @@ sub update {
         }
         $self->flash({success => 'Track edited'});
         $self->redirect_to("/albums/id$album_id", status => 200);
-      } elsif ($result == 1062) {
+      } elsif (is_dupl($result)) {
         $self->flash({error => 'Track with this title already exists in this album'});
         $self->redirect_to("/albums/id$album_id", status => 400);
       } else {

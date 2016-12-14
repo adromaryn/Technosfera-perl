@@ -8,7 +8,7 @@ use feature ':5.10';
 
 use MusicLib::Model::Album;
 use MusicLib::Model::Track;
-use MusicLib::Helper::CurrentUser 'current_user';
+use MusicLib::Helper::CurrentUser;
 use Digest::MD5;
 
 sub new_ {

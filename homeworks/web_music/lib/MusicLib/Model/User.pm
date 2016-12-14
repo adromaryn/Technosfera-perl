@@ -17,12 +17,10 @@ sub create {
   my $hash = shift;
   my $dbh = MusicLib::DB->get();
   my $sth = $dbh->prepare('INSERT INTO users (name, hash) VALUES (?, ?)');
-  $sth->execute($name, $hash);
-  if (my $err = $sth->err) {
-    $dbh->rollback;
-    return $err;
+  eval {$sth->execute($name, $hash);};
+  if ($@) {
+    return $@->{message};
   } else {
-    $dbh->commit;
     return undef;
   }
 }
@@ -32,12 +30,12 @@ sub read {
   my $name = shift;
   my $dbh = MusicLib::DB->get();
   my $sth = $dbh->prepare('SELECT * FROM users WHERE name = ?');
-  $sth->execute($name);
-  my $user = $sth->fetchrow_hashref();
-  if (defined $user) {
-    return MusicLib::Model::User->new($user);
-  } else {
+  eval {$sth->execute($name);};
+  if ($@) {
     return undef;
+  } else {
+    my $user = $sth->fetchrow_hashref();
+    return MusicLib::Model::User->new($user);
   }
 }
 
@@ -46,12 +44,10 @@ sub delete {
   my $name = shift;
   my $dbh = MusicLib::DB->get();
   my $sth = $dbh->prepare('DELETE FROM users WHERE name = ?');
-  $sth->execute($name);
-  if (my $err = $sth->err) {
-    $dbh->rollback;
-    return $err;
+  eval {$sth->execute($name);};
+  if ($@) {
+    return $@->{message};
   } else {
-    $dbh->commit;
     return undef;
   }
 }
@@ -60,11 +56,11 @@ sub all {
   my $pkg = shift;
   my $dbh = MusicLib::DB->get();
   my $sth = $dbh->prepare('SELECT * FROM users');
-  $sth->execute();
-  my $users = $sth->fetchall_arrayref({});
-  if ($sth->err) {
+  eval {$sth->execute();};
+  if ($@) {
     return undef;
   } else {
+    my $users = $sth->fetchall_arrayref({});
     return $users;
   }
 }

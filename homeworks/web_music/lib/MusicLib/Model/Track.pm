@@ -18,12 +18,10 @@ sub create {
   my ($pkg, %opts) = @_;
   my $dbh = MusicLib::DB->get();
   my $sth = $dbh->prepare('INSERT INTO tracks (album_id, title, format, link) VALUES (?, ?, ?, ?)');
-  $sth->execute($opts{album}, $opts{title}, $opts{format}, $opts{link});
-  if (my $err = $sth->err) {
-    $dbh->rollback;
-    return  $err;
+  eval {$sth->execute($opts{album}, $opts{title}, $opts{format}, $opts{link});};
+  if ($@) {
+    return $@->{message};
   } else {
-    $dbh->commit;
     return undef;
   }
 }
@@ -33,11 +31,11 @@ sub all {
   my $album_id = shift;
   my $dbh = MusicLib::DB->get();
   my $sth = $dbh->prepare('SELECT * FROM tracks WHERE album_id = ?');
-  $sth->execute($album_id);
-  my $tracks = $sth->fetchall_arrayref({});
-  if ($sth->err) {
+  eval {$sth->execute($album_id);};
+  if ($@) {
     return undef;
   } else {
+    my $tracks = $sth->fetchall_arrayref({});
     return $tracks;
   }
 }
@@ -47,12 +45,12 @@ sub read {
   my $id = shift;
   my $dbh = MusicLib::DB->get();
   my $sth = $dbh->prepare('SELECT * FROM tracks WHERE id = ?');
-  $sth->execute($id);
-  my $track = $sth->fetchrow_hashref();
-  if (defined $track) {
-    return MusicLib::Model::Track->new($track);
-  } else {
+  eval {$sth->execute($id);};
+  if ($@) {
     return undef;
+  } else {
+    my $track = $sth->fetchrow_hashref();
+    return MusicLib::Model::Track->new($track);
   }
 }
 
@@ -60,12 +58,10 @@ sub update {
   my ($pkg, %opts) = @_;
   my $dbh = MusicLib::DB->get();
   my $sth = $dbh->prepare('UPDATE tracks SET title = ?, format = ?, link = ? WHERE id = ?');
-  $sth->execute($opts{title}, $opts{format}, $opts{link}, $opts{id});
-  if (my $err = $sth->err) {
-    $dbh->rollback;
-    return  $err;
+  eval {$sth->execute($opts{title}, $opts{format}, $opts{link}, $opts{id});};
+  if ($@) {
+    return $@->{message};
   } else {
-    $dbh->commit;
     return undef;
   }
 }
@@ -75,12 +71,10 @@ sub delete {
   my $id = shift;
   my $dbh = MusicLib::DB->get();
   my $sth = $dbh->prepare('DELETE FROM tracks WHERE id = ?');
-  $sth->execute($id);
-  if (my $err = $sth->err) {
-    $dbh->rollback;
-    return $err;
+  eval {$sth->execute($id);};
+  if ($@) {
+    return $@->{message};
   } else {
-    $dbh->commit;
     return undef;
   }
 }

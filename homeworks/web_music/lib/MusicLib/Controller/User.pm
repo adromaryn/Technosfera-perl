@@ -13,7 +13,8 @@ use MusicLib::Model::Album;
 use MusicLib::Cache;
 use Digest::MD5;
 use Session::Token;
-use MusicLib::Helper::CurrentUser 'current_user';
+use MusicLib::Helper::CurrentUser;
+use MusicLib::Helper::Dupl;
 
 sub new_ {
   my $self = shift;
@@ -53,7 +54,7 @@ sub create {
       $self->session(expiration => 3600*24*10);
       $self->session({token => $token});
       $self->redirect_to("/");
-    } elsif ($result == 1062) {
+    } elsif (is_dupl($result)) {
       $self->flash({error => "User already exists"});
       $self->redirect_to('/users/new', status => 400);
     } else {
