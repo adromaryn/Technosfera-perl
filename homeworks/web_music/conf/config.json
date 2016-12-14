@@ -1,8 +1,8 @@
 {
     "db" : [
         "DBI:mysql:database=musiclb;host=localhost:3151426",
-        "username",
-        "password",
+        "root",
+        "",
         {
             "mysql_enable_utf8": 1,
             "AutoCommit": 1,

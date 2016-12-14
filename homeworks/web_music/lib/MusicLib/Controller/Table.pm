@@ -27,13 +27,13 @@ sub create {
   for my $line (@$lines) {
     my ($album, $band) = ($line->{album}, $line->{band});
     if (not defined $albums_hash{$album}) {
-      my $result = MusicLib::Model::Album->create(user => $user, title => $title, band => $band, year => $line->{year});
+      my $result = MusicLib::Model::Album->create(user => $user, title => $album, band => $band, year => $line->{year});
       if (not defined $result->{error} or is_dupl($result->{error})) {
         my %band_hash = ($band, -1);
         $albums_hash{$album} = \%band_hash;
       }
     } elsif (not defined $albums_hash{$album}->{$band}) {
-      my $result = MusicLib::Model::Album->create(user => $user, title => $title, band => $band, year => $line->{year});
+      my $result = MusicLib::Model::Album->create(user => $user, title => $album, band => $band, year => $line->{year});
       if (not defined $result->{error} or is_dupl($result->{error})) {
         $albums_hash{$album}->{$band} = -1;
       }

@@ -48,7 +48,6 @@ sub show {
     my $tracks = MusicLib::Model::Track->all($id);
     if (defined $tracks) {
       my %files = map {$_->{id} => track_image($_->{id})} @$tracks;
-      say $files{1};
       $self->render(album => $album, logined => 1,
                     owner => $current_user eq $album->{user_name},
                     tracks => $tracks, files => \%files);
@@ -92,7 +91,7 @@ sub update {
     if (defined $album) {
       my $user = $album->{user_name};
       if ($user eq $current_user) {
-        my $result = MusicLib::Model::Album->update(id => $id,
+        my $result = MusicLib::Model::Album->update(user => $id,
                                                     title => $title,
                                                     band => $band,
                                                     year => $year);
