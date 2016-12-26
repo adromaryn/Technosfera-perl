@@ -1,0 +1,3 @@
+TYPEMAP
+stats_obj * T_PTROBJ
+Local::Stats T_PTROBJ
