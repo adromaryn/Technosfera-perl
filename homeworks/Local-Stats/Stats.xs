@@ -119,7 +119,7 @@ add(stats, name, num)
       LEAVE;
     }
 
-SV * get(stats)
+SV * stats(stats)
     Local::Stats stats
     CODE:
       RETVAL = newRV((SV *)stats->metrics);

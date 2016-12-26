@@ -420,8 +420,8 @@ XS_EUPXS(XS_Local__Stats_add)
 }
 
 
-XS_EUPXS(XS_Local__Stats_get); /* prototype to pass -Wmissing-prototypes */
-XS_EUPXS(XS_Local__Stats_get)
+XS_EUPXS(XS_Local__Stats_stats); /* prototype to pass -Wmissing-prototypes */
+XS_EUPXS(XS_Local__Stats_stats)
 {
     dVAR; dXSARGS;
     if (items != 1)
@@ -436,7 +436,7 @@ XS_EUPXS(XS_Local__Stats_get)
 	}
 	else
 	    Perl_croak_nocontext("%s: %s is not of type %s",
-			"Local::Stats::get",
+			"Local::Stats::stats",
 			"stats", "Local::Stats")
 ;
 #line 125 "Stats.xs"
@@ -479,7 +479,7 @@ XS_EXTERNAL(boot_Local__Stats)
         newXS_deffile("Local::Stats::constant", XS_Local__Stats_constant);
         newXS_deffile("Local::Stats::new", XS_Local__Stats_new);
         newXS_deffile("Local::Stats::add", XS_Local__Stats_add);
-        newXS_deffile("Local::Stats::get", XS_Local__Stats_get);
+        newXS_deffile("Local::Stats::stats", XS_Local__Stats_stats);
 #if PERL_VERSION_LE(5, 21, 5)
 #  if PERL_VERSION_GE(5, 9, 0)
     if (PL_unitcheckav)
